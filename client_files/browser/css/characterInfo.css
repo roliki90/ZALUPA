@@ -1,0 +1,313 @@
+#characterInfo .info-box {
+    background: rgb(0, 0, 0, 0.6);
+    border-radius: 25px;
+    box-shadow: 0px 5px 10px #0008;
+    font-family: Montserrat;
+    position: absolute;
+    right: 10vh;
+    top: 30%;
+    transform: rotateY(-10deg);
+    width: 36vh;
+}
+
+#characterInfo .content {
+    color: #fff;
+    padding: 3vh;
+}
+
+#characterInfo .content .money {
+    display: flex;
+    font-size: 2vh;
+    justify-content: space-around;
+    margin: 2vh 0;
+}
+
+#characterInfo .content .money img {
+    margin-bottom: -0.1vh;
+    margin-right: 1vh;
+    width: 2vh;
+}
+
+#characterInfo .content .money .cash {
+    color: #a2dd03;
+}
+
+#characterInfo .content .name {
+    font-size: 3vh;
+    font-weight: bold;
+    text-align: center;
+}
+
+#characterInfo .content .info {
+    color: #fff;
+    font-size: 1.3vh;
+    width: 100%;
+}
+
+#characterInfo .content .info td:nth-child(2) {
+    text-align: right;
+}
+
+#characterInfo .content .info tr {
+    height: 5vh;
+}
+
+#characterInfo .content .info div {
+    color: #f1d941;
+    font-weight: bold;
+}
+
+#characterInfo .content .warns {
+    color: #b50000;
+    font-weight: bold;
+    margin: 1vh 0;
+    text-align: center;
+}
+
+#characterInfo .content .warns img {
+    margin-bottom: -0.3vh;
+    margin-right: 0.5vh;
+    width: 2vh;
+}
+
+#characterInfo .header {
+    background: #f1d941;
+    border-radius: 20px 20px 0 0;
+    font-size: 1.7vh;
+    font-weight: bold;
+    padding: 1.5vh;
+    text-align: center;
+}
+
+#characterInfo .coins {
+    position: absolute;
+    right: 2.7vh;
+    top: 2.7vh;
+    display: flex;
+}
+
+#characterInfo .coins .panel {
+    display: flex;
+    font-family: Ubuntu;
+    background-color: rgba(12, 12, 12, 0.6);
+    border-radius: 1vh;
+    color: white;
+    padding: 1.2vh;
+    font-weight: 500;
+    font-size: 1.3vh;
+    line-height: 2vh;
+}
+
+#characterInfo .coins span {
+    font-size: 1.4vh;
+    color: #FFDF29;
+    margin: 0 1vh 0 3vh;
+}
+
+#characterInfo .coins img {
+    height: 1.7vh;
+    width: 1.7vh;
+}
+
+#characterInfo .add-coins {
+    font-family: Ubuntu;
+    background-color: #FFDF29;
+    border-radius: 1vh;
+    padding: 1.2vh;
+    font-weight: 500;
+    font-size: 1.3vh;
+    text-align: center;
+    width: 12.5vh;
+    line-height: 1vh;
+    height: 1vh;
+    margin: 0.5vh 1.1vh;
+}
+
+#characterInfo .add-coins:hover {
+    box-shadow: 0px 0px 0.3vh #FFDF29;
+}
+
+
+
+#characterSelector {
+    bottom: 5vh;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%);
+}
+
+#characterSelector>div {
+    align-items: center;
+    display: flex;
+}
+
+#characterSelector button {
+    background: #f1d941;
+    border: none;
+    border-radius: 2vh;
+    font-family: Montserrat;
+    font-size: 1.3vh;
+    font-weight: bold;
+    margin: 0 8vh;
+    outline: none;
+    padding: 1.2vh 7.5vh;
+    text-transform: uppercase;
+}
+
+#characterSelector button:not(.disabled):active {
+    color: #fff;
+}
+
+#characterSelector button:not(.disabled):hover {
+    background: #e0c830;
+}
+
+#characterSelector .arrow {
+    color: #f1d941;
+    font-family: monospace;
+    font-size: 8vh;
+    margin-bottom: 0.9vh;
+}
+
+#characterSelector .arrow:not(.disabled):hover {
+    color: #e0c830;
+}
+
+#characterSelector .disabled {
+    opacity: 0.3;
+}
+
+#createCharacter {
+    background: #f1d941;
+    border-radius: 10vh;
+    bottom: 37%;
+    height: 19vh;
+    left: 44.3%;
+    position: absolute;
+    width: 19vh;
+}
+
+#createCharacter > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+#createCharacter:active {
+    color: #fff;
+}
+
+#createCharacter:hover {
+    background: #e0c830;
+}
+
+#createCharacter .plus {
+    font-size: 7vh;
+    text-align: center;
+    font-family: none;
+}
+
+#createCharacter .text {
+    text-align: center;
+    font-size: 1.5vh;
+    font-weight: bold;
+}
+
+#characterAddSlot {
+    background: rgba(12, 12, 12, 0.6);
+    border-radius: 1vh;
+    position: absolute;
+    font-family: Ubuntu;
+    font-weight: 400;
+    font-size: 1.5vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    padding: 2.4vh 5.4vh;
+    opacity: 0;
+}
+
+#characterAddSlot .add-slot.step {
+    position: relative;
+    left: -2.7vh;
+}
+
+#characterAddSlot .add-slot>div {
+    display: flex;
+    color: white;
+}
+
+#characterAddSlot .add-slot span {
+    color: #FFDF29;
+    font-weight: 500;
+    margin: 0 0.6vh 0 1.3vh;
+}
+
+#characterAddSlot .add-slot img {
+    height: 1.7vh;
+    width: 1.7vh;
+}
+
+#characterAddSlot .add-slot .btn {
+    height: 3.9vh;
+    width: 14.6vh;
+    margin: 0 2.2vh;
+    margin-top: 1.8vh;
+    border-radius: 1.3vh;
+    line-height: 3.9vh;
+    border: 0.1vh solid #FFDF29;
+    display: block;
+    text-align: center;
+}
+
+
+#characterAddSlot .add-slot .btn:hover {
+    background-color: #FFDF29;
+    color: #000;
+}
+
+#characterAddSlot .add-slot .btn:active {
+    background-color: #CCB21F;
+    border: 0.1vh solid #CCB21F;
+    color: #000;
+}
+
+#characterAddSlot .other {
+    color: white;
+    display: flex;
+    font-weight: 400;
+    width: 27vh;
+}
+
+#characterAddSlot .other .or {
+    font-size: 1.2vh;
+    text-align: center;
+    width: 8vh;
+    height: 100%;
+}
+
+#characterAddSlot .other .or>div {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0.7vh;
+}
+
+#characterAddSlot .other .info {
+    margin-left: 4.2vh;
+    text-align: center;
+}
+
+#characterAddSlot .other .info span {
+    font-weight: 700;
+    color: #FFDF29;
+}
+
+#characterAddSlot .other .info>div {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}

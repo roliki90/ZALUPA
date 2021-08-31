@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <link rel="stylesheet" type="text/css" href="build/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/fonts.css" />
+    <link rel="stylesheet" type="text/css" href="css/hud.css" />
+    <link rel="stylesheet" type="text/css" href="css/prompt.css" />
+    <link rel="stylesheet" type="text/css" href="css/notifications.css" />
+    <link rel="stylesheet" type="text/css" href="css/offerDialog.css" />
+    <link rel="stylesheet" type="text/css" href="css/infoTable.css" />
+    <link rel="stylesheet" type="text/css" href="css/characterInfo.css" />
+    <link rel="stylesheet" type="text/css" href="css/selectMenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/auth.css" />
+    <link rel="stylesheet" type="text/css" href="css/loader.css" />
+    <link rel="stylesheet" type="text/css" href="css/characterPass.css" />
+    <link rel="stylesheet" type="text/css" href="css/carPass.css" />
+    <link rel="stylesheet" type="text/css" href="css/driverLicense.css" />
+    <link rel="stylesheet" type="text/css" href="css/speedometer.css" />
+    <link rel="stylesheet" type="text/css" href="css/interactionMenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/inventory.css" />
+    <link rel="stylesheet" type="text/css" href="css/craft.css" />
+    <link rel="stylesheet" type="text/css" href="css/carSpecifications.css" />
+    <link rel="stylesheet" type="text/css" href="css/check.css" />
+    <link rel="stylesheet" type="text/css" href="css/inputWindow.css" />
+    <link rel="stylesheet" type="text/css" href="css/selectionWindow.css" />
+    <link rel="stylesheet" type="text/css" href="css/acceptWindow.css" />
+    <link rel="stylesheet" type="text/css" href="css/terminal.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="css/playersList.css" /> -->
+    <link rel="stylesheet" type="text/css" href="css/gunLicense.css" />
+    <link rel="stylesheet" type="text/css" href="css/fishing.css" />
+    <link rel="stylesheet" type="text/css" href="css/captureScore.css" />
+    <link rel="stylesheet" type="text/css" href="css/killList.css" />
+    <link rel="stylesheet" type="text/css" href="css/watermark.css" />
+    <link rel="stylesheet" type="text/css" href="css/timer.css" />
+    <link rel="stylesheet" type="text/css" href="css/changelist.css" />
+    <link rel="stylesheet" type="text/css" href="css/modal.css" />
+    <link rel="stylesheet" type="text/css" href="css/selectItems.css" />
+    <link rel="stylesheet" type="text/css" href="css/medicalCard.css" />
+    <link rel="stylesheet" type="text/css" href="css/governmentBadge.css" />
+    <link rel="stylesheet" type="text/css" href="css/bugTracker.css" />
+    <script src="js/main.js"></script>
+
+    <!-- development version, includes helpful console warnings -->
+    <!-- <script src="js/vue-development.js"></script> -->
+    <!-- production version, optimized for size and speed -->
+    <!-- <script src="js/vue-production.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.9"></script>
+
+    <title>[GUI] Classic Roleplay</title>
+</head>
+
+<body>
+    <!-- ************************** VUE JS ************************** -->
+    <!-- v-cloak в контейнерах VUE используется для того, что бы решить проблему мерцания UI при запуске -->
+    <div v-cloak="v-cloak" id="hud" v-show="show">
+        <div v-show="keysShow && !selectMenu.show" class="keys">
+            <div v-show="isKeyShow(key.name)" v-for="key in keys" v-bind:key="key.key"><span v-html="key.key"></span>{{ key.name }}</div>
+        </div>
+        <div class="panel-right-top" v-show="!prompt.text">
+            <div class="info-logo">
+                <div class="info">
+                    <div v-if="build">Build: <span>{{ build }} ({{ branch }})</span></div>
+                    <div>Онлайн: <span>{{ players }}/{{ maxPlayers }}</span></div>
+                    <div>Ваш ID: <span>{{ playerId }}</span></div>
+                </div>
+                <div><img class="logo" src="img/logo.png" /></div>
+            </div>
+            <div class="wanted" v-if="wanted">
+                <svg :class="{ paint: wanted > 5 - n }" v-for="n in 5" viewBox="0 0 26 24"><path :d="star"/></svg>
+            </div>
+            <div class="player-state">
+                <img v-if="cold" src="img/hud/cold.svg" />
+                <img v-if="heat" src="img/hud/heat.svg" />
+            </div>
+            <div class="arrest" v-if="arrestTime > 0">
+                <div class="wrap">
+                    <svg>
+                        <circle :style="arrestProgressStyle"/>
+                    </svg>
+                    <img src="img/hud/jail.svg"/>
+                </div>
+                <div class="description">{{ arrestDescription }}</div>
+            </div>
+        </div>
+        <div class="panel-right-bottom">
+            <div class="voice block">
+                <svg :class="{ on: voice && !mute }" viewBox="0 0 16 18" xmlns="http://www.w3.org/2000/svg">
+                    <g :class="{ mute: mute}">
+                        <path d="M7.99963 11.4545C9.73961 11.4545 11.1553 9.86209 11.1553 7.90255L11.1454 3.53891C11.1454 1.58749 9.73423 0 7.99963 0C6.26518 0 4.85408 1.58749 4.85408 3.53689L4.84424 7.90467C4.84424 9.86209 6.2597 11.4545 7.99963 11.4545Z" />
+                        <path d="M13.5796 8.45235C13.5796 8.00044 13.2539 7.63417 12.8523 7.63417C12.4506 7.63417 12.125 8.00044 12.125 8.45235C12.125 11.0014 10.2885 13.0763 8.02583 13.0924C8.01705 13.092 8.00852 13.0909 7.99965 13.0909C7.99073 13.0909 7.98224 13.092 7.97342 13.0924C5.71092 13.0764 3.87447 11.0014 3.87447 8.45235C3.87447 8.00044 3.54879 7.63417 3.14719 7.63417C2.74555 7.63417 2.41992 8.00044 2.41992 8.45235C2.41992 11.6363 4.53813 14.2741 7.27238 14.6762V16.3636H5.67248C5.27083 16.3636 4.9452 16.73 4.9452 17.1818C4.9452 17.6337 5.27083 18 5.67248 18H10.3271C10.7287 18 11.0544 17.6337 11.0544 17.1818C11.0544 16.73 10.7287 16.3636 10.3271 16.3636H8.72692V14.6762C11.4613 14.274 13.5796 11.6363 13.5796 8.45235Z" />
+                    </g>
+                    <g v-if="mute">
+                        <rect x="0.824707" y="1.48938" width="22.0703" height="1.88875" rx="0.944376" transform="rotate(45 0.824707 1.48938)" fill="#FF3838"/>
+                        <rect width="22.0703" height="1.88875" rx="0.944376" transform="matrix(-0.707107 0.707107 0.707107 0.707107 15.0952 1.48938)" fill="#FF3838"/>
+                    </g>
+                    <!--<path d="M6.72898 12.2246C8.46895 12.2246 9.85821 10.6324 9.82572 8.67313L9.74348 4.31009C9.71113 2.35894 8.27365 0.771667 6.53906 0.771667C4.80461 0.771667 3.41983 2.35894 3.45215 4.30807L3.51473 8.67525C3.54718 10.6324 4.98905 12.2246 6.72898 12.2246Z" />
+                    <path d="M12.2591 9.22286C12.2517 8.77101 11.9199 8.40479 11.5183 8.40479C11.1167 8.40479 10.7971 8.77101 10.8046 9.22286C10.8469 11.7715 9.04476 13.8462 6.78234 13.8622C6.77356 13.8619 6.76501 13.8608 6.75614 13.8608C6.74721 13.8608 6.73875 13.8619 6.72993 13.8622C4.46717 13.8463 2.59631 11.7715 2.55405 9.22286C2.54655 8.77101 2.21481 8.40479 1.81321 8.40479C1.41156 8.40479 1.09201 8.77101 1.0995 9.22286C1.15229 12.4063 3.31423 15.0438 6.05515 15.4459L6.08313 17.1331H4.48322C4.08158 17.1331 3.76203 17.4993 3.76952 17.9511C3.77701 18.4029 4.10871 18.7692 4.51036 18.7692H9.16499C9.56659 18.7692 9.88619 18.4029 9.8787 17.9511C9.87121 17.4993 9.53946 17.1331 9.13786 17.1331H7.53767L7.50969 15.4459C10.2374 15.0437 12.3119 12.4063 12.2591 9.22286Z" />-->
+                </svg>
+                <div v-if="!mute" class="symb">N</div>
+
+            </div>
+            <div class="starvation block">
+                <div :class="['satiety', 'record', { red: satiety <= 10 } ]">
+                    <div><img src="img/hud/burger.svg"/></div>
+                    <div class="progress"><div :style="{ width: satiety+'%' }"></div></div>
+                    <div class="percent">{{ +satiety.toFixed(1) }}%</div>
+                </div>
+                <div :class="['thirst', 'record', { red: thirst <= 10 } ]">
+                    <div><img src="img/hud/glass.svg"/></div>
+                    <div class="progress"><div :style="{ width: thirst+'%' }"></div></div>
+                    <div class="percent">{{ +thirst.toFixed(1) }}%</div>
+                </div>
+            </div>
+            <div class="money block">
+                <div class="cash">
+                    <img src="img/hud/cash.svg" />
+                    {{ pretty(cash) }}
+                    $
+                </div>
+                <div class="time">{{ time }}</div>
+                <div class="bank">
+                    <img src="img/hud/credit-card.svg" />
+                    {{ pretty(bank) }}
+                    $
+                </div>
+                <div class="date">{{ date }}</div>
+            </div>
+        </div>
+        <div class="weather block" v-bind:style="{left: leftWeather + 'px'}">
+            <div>
+                <div class="region">{{ region }}</div>
+                <div class="street">{{ street }}</div>
+                <div class="temperature">{{ temperature }}°C</div>
+                <img :src="'img/weather/' + weather + '.svg'" />
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="prompt" v-if="text">
+        <div class="text" v-html="text"></div>
+    </div>
+
+    <div id="notifications">
+        <transition-group name="notif" tag="div">
+            <div :class="[notif.type, 'notif-box']" v-for="notif, in messages" :key="notif.hash">
+                <img :src="'img/notifs/' + notif.img + '.svg'" />
+                <div v-cloak="v-cloak" class="message">
+                    <div class="header" v-if="notif.header">{{ notif.header }}</div>
+                    {{ notif.text }}
+                </div>
+            </div>
+        </transition-group>
+    </div>
+
+    <div v-cloak id="offerDialog" v-if="dialog">
+        <div class="quick">
+            <div class="agree" @click="dialog.yes(); hide()">
+                <svg :class="{green: green}" width="37" height="37" viewBox="0 0 37 37">
+                    <circle  cx="18.5" cy="18.5" r="17.5" stroke-width="2"/>
+                    <circle class="fill" cx="18.5" cy="18.5" r="10.5" />
+                    <path d="M17.7816 25V20.014L12.5436 12.4H14.2716L18.5196 18.7L22.8036 12.4H24.4596L19.2216 19.996V25H17.7816Z" fill="white"/>
+                </svg>
+            </div>
+            <div class="content">
+                <div class="message" v-html="dialog.text"><span>Swift Dunhill</span> желает с вами познакомиться</div>
+                <!--<div class="price" v-if="dialog.price">
+                    ${{ pretty(dialog.price) }}</div>-->
+            </div>
+            <div class="cancel" @click="dialog.no(); hide()">
+                <svg :class="{red: red}" width="37" height="37" viewBox="0 0 37 37">
+                    <circle cx="18.5" cy="18.5" r="17.5" stroke-width="2"/>
+                    <circle class="fill" cx="18.5" cy="18.5" r="10.5"/>
+                    <path d="M13.1716 25V12.4H14.5036L22.4416 22.498V12.4H23.8276V25H22.6936L14.5576 14.668V25H13.1716Z" fill="white"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="infoTable" v-if="show && name">
+        <div class="header">{{ tables[name].header }}</div>
+        <div class="content">
+            <div class="row" v-for="param in tables[name].params">
+                <div class="param">
+                    <div class="key">{{ param.key }}</div>
+                    <div class="value" :class="{empty: param.value == 0, full: param.value == 100}">{{ prettyValue(param) }}</div>
+                </div>
+                <div class="progress" v-if="param.isProgress">
+                    <div class="fill" :class="{full: param.value == 100}" :style="{width: param.value + '%'}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="characterInfo" v-if="show">
+        <div class="info-box" v-if="i < characters.length">
+            <div class="header">Статистика персонажа</div>
+            <div class="content">
+                <div class="name">{{ characters[i].name.split(' ')[0] }}<br />{{ characters[i].name.split(' ')[1] }}</div>
+                <div class="money">
+                    <div class="cash">
+                        <img src="img/hud/cash.svg" />
+                        $
+                        {{ pretty(characters[i].cash) }}
+                    </div>
+                    <div class="bank">
+                        <img src="img/hud/credit-card.svg" />
+                        $
+                        {{ pretty(characters[i].bank) }}
+                    </div>
+                </div>
+                <table class="info">
+                    <tr>
+                        <td>Игровой статус:
+                            <div>{{ characters[i].status }}</div>
+                        </td>
+                        <td>Отыграно:
+                            <div>{{ characters[i].hours }}
+                                часов</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Организация:
+                            <div>{{ characters[i].faction }}</div>
+                        </td>
+                        <td>Профессия:
+                            <div>{{ characters[i].job }}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Проживание:
+                            <div>{{ characters[i].house }}</div>
+                        </td>
+                        <td>Бизнес:
+                            <div>{{ characters[i].biz }}</div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="warns" v-show="characters[i].warns">
+                    <img src="img/characterInfo/warn.svg" />
+                    Предупреждений:
+                    {{ characters[i].warns }}
+                </div>
+            </div>
+        </div>
+        <div class="coins">
+            <div class="add-coins" v-if="showAddCoins" @click="addCoins()">Пополнить счёт</div>
+            <div class="panel">Ваш счёт: <span>{{ pretty(coins) }}</span><img src="img/characterInfo/coins.svg" /></div></div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="characterSelector" v-if="show">
+        <div>
+            <div class="arrow" @click="left" :class="{disabled: leftArrowDisabled}">&lt;</div>
+            <button @click="enter" :class="{disabled: enterDisabled}">Выбрать</button>
+            <div class="arrow" @click="right" :class="{disabled: rightArrowDisabled}">&gt;</div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="characterAddSlot" v-if="show" :style="{opacity: 1}">
+        <div class="add-slot" :class="{step: oneSlot}">
+            <div>Стоимоcть услуги: <span>{{ price }}</span><img src="img/characterInfo/coins.svg" /></div>
+            <div class="btn" @click="addSlot()">Добавить слот</div>
+        </div>
+        <div class="other" v-if="oneSlot">
+            <div class="or"><div>ИЛИ</div></div>
+            <div class="info"><div>Отыграйте <span>{{ hours }}</span> часов<br/>на вашем первом персонаже</div></div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="createCharacter" onclick="createCharacter.onClickCreateCharacter()" v-if="show">
+        <div>
+            <div class="plus">+</div>
+            <div class="text">Создать<br />персонажа</div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="selectMenu" :class="{inactive: loader}" v-if="show && menu">
+        <div class="header" v-if="!menu.headerImg">{{ menu.header }}</div>
+        <div class="headerImg" :style="headerStyles" v-else></div>
+        <div class="content">
+            <div class="arrow arr-up" :class="{active: menu.j > 0}"></div>
+            <div class="items">
+                <div class="item" v-for="(item, index) in items" v-show="isItemShow(index)" :class="{selected: index == menu.i}">
+                    <div class="name" :class="{button: item.location}" :style="{'text-align': item.location}">{{ item.text.replace(/(\\)/g, "") }}</div>
+                    <div class="value" v-if="item.values && valuesType(index) != 1">
+                        {{ item.values[item.i] }}
+                        <img :src="(menu.i != index)? 'img/selectMenu/edit.png' : 'img/selectMenu/edit-selected.png'" v-if="valuesType(index) == 3" />
+                    </div>
+                    <div class="value color-type" v-else-if="item.values && valuesType(index) == 1" :style="{background: item.values[item.i]}"></div>
+                </div>
+            </div>
+            <div class="arrow arr-down" :class="{active: menu.j < menu.items.length - maxItems}"></div>
+        </div>
+        <div v-if="valuesType(menu.i) == 0" class="selector" v-show="menu.items[menu.i].values.length > 1">
+            <div v-for="value in values">{{ value }}</div>
+        </div>
+        <div v-else-if="valuesType(menu.i) == 1" class="selector select-color">
+            <div class="arrow arr-left" :class="{active: menu.items[menu.i].j > 0}"></div>
+            <div class="color-type" v-for="(value, index) in items[menu.i].values" v-show="isColorValueShow(index)" :class="{active: index == menu.items[menu.i].i}" :style="{background: value}"></div>
+            <div class="arrow arr-right" :class="{active: menu.items[menu.i].j < menu.items[menu.i].values.length - maxColorValues}"></div>
+        </div>
+        <div v-else-if="valuesType(menu.i) == 2" class="selector select-number">
+            <div>{{ menu.items[menu.i].min }}</div>
+            <div class="progress">
+                <div class="fill" :style="{left: leftNumberType}"></div>
+            </div>
+            <div>{{ menu.items[menu.i].max }}</div>
+        </div>
+        <div class="notification" v-if="notification">
+            {{ notification }}
+        </div>
+        <div class="textField" v-show="valuesType(menu.i) == 3">
+            <input :ref="menu.items[menu.i].text" type="text" v-model="menu.items[menu.i].values[0]" :placeholder="menu.items[menu.i].text" />
+        </div>
+        <div v-cloak="v-cloak" class="loader lds-css ng-scope" v-if="loader">
+            <div class="lds-rolling">
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="auth" v-if="show">
+        <div class="content">
+            <center>
+                <img class="logo" src="img/logo.png" />
+            </center>
+            <div class="header">{{ header }}</div>
+            <div class="authAccount" v-if="form == 0">
+                <label>Логин или Email
+                    <input type="text" v-model="loginOrEmail" v-on:keyup.enter="authAccountHandler" autofocus />
+                    <img class="ic-login" src="img/auth/login.png" />
+                </label>
+                <label>Пароль
+                    <input type="password" v-model="password" v-on:keyup.enter="authAccountHandler" />
+                    <img class="ic-password" src="img/auth/password.png" />
+                </label>
+                <a v-show="!recoveryCompleted" class="recoveryAccountBtn" @click="form = 2">Забыли пароль?</a>
+                <a class="regAccountBtn" @click="form = 1">Создать аккаунт</a>
+                <button @click="authAccountHandler">Далее</button>
+            </div>
+            <div class="regAccount" v-if="form == 1">
+                <label>Логин
+                    <input type="text" v-model="login" v-on:keyup.enter="regAccountHandler" autofocus />
+                    <img class="ic-login" src="img/auth/login.png" />
+                </label>
+                <label>Email
+                    <input type="text" v-model="email" v-on:keyup.enter="regAccountHandler" />
+                    <img class="ic-email" src="img/auth/email.png" />
+                </label>
+                <label>Пароль
+                    <input type="password" v-model="password" v-on:keyup.enter="regAccountHandler" />
+                    <img class="ic-password" src="img/auth/password.png" />
+                </label>
+                <label>Повторите пароль
+                    <input type="password" v-model="password2" v-on:keyup.enter="regAccountHandler" />
+                    <img class="ic-password2" src="img/auth/password.png" />
+                </label>
+                <a class="authAccountBtn" @click="form = 0">Войти в аккаунт</a>
+                <button @click="regAccountHandler(-1)">Далее</button>
+            </div>
+            <div class="recoveryAccount" v-if="form == 2">
+                <label v-show="!recoveryCodeSent && !recoveryCodeConfirmed">Логин или Email
+                    <input type="text" v-model="loginOrEmail" v-on:keyup.enter="recoveryAccountHandler" autofocus />
+                    <img class="ic-login" src="img/auth/login.png" />
+                </label>
+                <label v-show="recoveryCodeSent">Код подтверждения
+                    <input type="text" v-model="code" v-on:keyup.enter="recoveryAccountHandler" />
+                    <img class="ic-password" src="img/auth/password.png" />
+                </label>
+                <label v-show="recoveryCodeConfirmed">Пароль
+                    <input type="text" v-model="password" v-on:keyup.enter="recoveryAccountHandler" />
+                    <img class="ic-password" src="img/auth/password.png" />
+                </label>
+                <label v-show="recoveryCodeConfirmed">Повторите пароль
+                    <input type="text" v-model="password2" v-on:keyup.enter="recoveryAccountHandler" />
+                    <!-- <img class="ic-password" src="img/auth/password.png" /> -->
+                </label>
+                <a class="authAccountBtn" @click="form = 0">Войти в аккаунт</a>
+                <button @click="recoveryAccountHandler">Далее</button>
+            </div>
+            <div class="confirmEmail" v-if="form == 3">
+                <label>Код подтверждения
+                    <input type="text" v-model="code" autofocus v-on:keyup.enter="confirmEmailHandler(1)" />
+                    <img class="ic-password" src="img/auth/password.png" />
+                </label>
+                <a class="confirmEmailBtn" @click="confirmEmailHandler(0)">Пропустить</a>
+                <button @click="confirmEmailHandler(1)">Далее</button>
+            </div>
+
+            <div class="input-prompt" v-if="prompt">{{ prompt }}</div>
+
+        </div>
+        <div class="updates">
+            <h3 class="header">Обновления сервера</h3>
+            <div class="list">
+                <div v-for="(update, i) in updates" @click="showChangelist(updates.length - i - 1)">
+                    <div class="date">{{ update.date }}</div>
+                    <div class="title">Обновления #{{ updates.length - i }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="loader" class="lds-css ng-scope" v-if="show">
+        <div class="lds-rolling">
+            <div></div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="characterPass" v-if="show">
+        <span class="close" @click="close()">x</span>
+        <div class="header">{{ header }}</div>
+        <div class="content">
+            <div class="infoA">
+                <div class="label">Имя</div>
+                <div class="value">{{ fullname }}</div>
+                <div class="label">Гражданство</div>
+                <div class="value">UNITED STATES OF AMERICA</div>
+                <div class="label">Семейное положение</div>
+                <div class="value">{{ prettySpouse }}</div>
+                <div class="label">Дата получения</div>
+                <div class="value">{{ regDate }}</div>
+            </div>
+            <div class="infoB">
+                <div class="label">Пол</div>
+                <div class="value">{{ prettySex }}</div>
+                <div class="label">Выдан</div>
+                <div class="value">United States Department of State</div>
+            </div>
+        </div>
+        <div class="number">{{ prettyNumber }}</div>
+        <div class="footer">P&lt;USA{{ fName }}&lt;&lt;{{ sName }}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br />
+            Numpass&lt;&lt;{{ prettyNumber }}
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="carPass" v-if="show">
+        <span class="close" @click="close()">x</span>
+        <div class="header">{{ header }}</div>
+        <div class="content">
+            <div class="infoA">
+                <div class="label">Идентификатор</div>
+                <div class="value">{{ prettyId }}</div>
+                <div class="label">Название</div>
+                <div class="value">{{ name }}</div>
+                <div class="label">Тип Т/С</div>
+                <div class="value">{{ vehType }}</div>
+                <div class="label">Дата регистрации</div>
+                <div class="value">{{ regDate }}</div>
+                <div class="label">Гос. стоимость</div>
+                <div class="value">${{ prettyPrice }}</div>
+            </div>
+            <div class="infoB">
+                <div class="label">Владельцев</div>
+                <div class="value">{{ owners }}</div>
+                <div class="label">Рег. номер</div>
+                <div class="value">{{ number }}</div>
+            </div>
+        </div>
+        <div class="number">{{ number }}</div>
+    </div>
+
+    <div v-cloak="v-cloak" id="driverLicense" v-if="show">
+        <span class="close" @click="close">x</span>
+        <div class="header">{{ header }}</div>
+        <div class="content">
+            <div class="infoA">
+                <h3>Driver License</h3>
+                <div class="label">ID Лицензии</div>
+                <div class="value">{{ prettyNumber }}</div>
+                <div class="label">Имя</div>
+                <div class="value">{{ name }}</div>
+                <div class="label">Пол</div>
+                <div class="value">{{ prettySex }}</div>
+            </div>
+            <div class="infoB">
+                <div class="category" :class="{active: categories[index]}" v-for="(cat, index) in catNames">
+                    <div class="label">{{ cat }}</div>
+                    <img :src="imgSrc(index)" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="medicalCard" v-if="show" :style="{opacity: 1}">
+        <div class="cancel" @click="show = false">
+            <svg viewBox="0 0 11 11" fill="none" >
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M6.80758 5.49954L10.7295 1.57763C11.0905 1.21661 11.0905 0.63129 10.7295 0.270326C10.3685 -0.0906907 9.78321 -0.0906907 9.42219 0.270326L5.50023 4.19229L1.57827 0.270274C1.21725 -0.0907424 0.631984 -0.0907424 0.270968 0.270274C-0.089997 0.63129 -0.089997 1.21661 0.270968 1.57758L4.19293 5.49949L0.270968 9.42145C-0.089997 9.78246 -0.089997 10.3678 0.270968 10.7287C0.631984 11.0898 1.21725 11.0898 1.57827 10.7287L5.50023 6.80679L9.42219 10.7287C9.78315 11.0898 10.3685 11.0898 10.7295 10.7287C11.0905 10.3677 11.0905 9.78246 10.7295 9.42145L6.80758 5.49954Z" fill="white"/>
+            </svg>
+        </div>
+        <div class="info">
+            <div class="name">{{ name }}</div>
+            <div><span>Пол: </span>{{ gender }}</div>
+            <div><span>Организация: </span>{{ occupation }}</div>
+            <div><span>Истекает: </span>{{ time }}</div>
+        </div>
+        <div class="identifier">{{ identifier | split }}</div>
+        <div class="sign">{{ sign }}</div>
+    </div>
+
+    <div v-cloak id="governmentBadge" :class="type" v-show="show">
+        <img v-show="type == 'bcsd'" :src="`img/governmentBadge/BCSD.svg`"/>
+        <img v-show="type == 'fib'" :src="`img/governmentBadge/FIB.svg`"/>
+        <img v-show="type == 'lspd'" :src="`img/governmentBadge/LSPD.svg`"/>
+        <div class="cancel" @click="close()">
+            <svg viewBox="0 0 11 11" fill="none" >
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M6.80758 5.49954L10.7295 1.57763C11.0905 1.21661 11.0905 0.63129 10.7295 0.270326C10.3685 -0.0906907 9.78321 -0.0906907 9.42219 0.270326L5.50023 4.19229L1.57827 0.270274C1.21725 -0.0907424 0.631984 -0.0907424 0.270968 0.270274C-0.089997 0.63129 -0.089997 1.21661 0.270968 1.57758L4.19293 5.49949L0.270968 9.42145C-0.089997 9.78246 -0.089997 10.3678 0.270968 10.7287C0.631984 11.0898 1.21725 11.0898 1.57827 10.7287L5.50023 6.80679L9.42219 10.7287C9.78315 11.0898 10.3685 11.0898 10.7295 10.7287C11.0905 10.3677 11.0905 9.78246 10.7295 9.42145L6.80758 5.49954Z" fill="white"/>
+            </svg>
+        </div>
+        <div class="name">{{ name }}</div>
+        <div v-if="type == 'fib'" class="rank">{{ rank }}</div>
+        <div class="identifier">{{ identifier }}</div>
+        <div class="sign">{{ sign }}</div>
+        <div v-if="type == 'fib'" class="d-sign">{{ directorSign }}</div>
+        <div v-if="type != 'fib'" class="info">
+            <div><span>Звание: </span>{{ rank }}</div>
+            <div><span>Пол: </span>{{ gender }}</div>
+        </div>
+    </div>
+
+    <div v-cloak id="speedometer" :class="{ noActive: !isActive }" v-if="isShow">
+        <!--<svg class="scale" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="766.625" height="387.906" viewBox="0 0 766.625 387.906">
+            <path v-for="path in svgScalePaths" :class="{ fill: path.isFill }" :d="path.d" transform="translate(-116.688 -293.5)" />
+        </svg>-->
+        <div class="content">
+            <div class="speed">
+                <div class="value">{{ speed }}</div>
+                <div class="unit">км/ч</div>
+            </div>
+            <div class="headlights">
+                <svg viewBox="0 0 30 30" fill="none" :class="{ yellow: headlights == 3, white: headlights == 1 || headlights == 2 }">
+                    <path d="M23.5009 10.5005H20.183C18.2537 10.5005 17.2441 13.7702 17.2441 17C17.2441 20.2298 18.2537 23.4995 20.183 23.4995H23.5009C27.0846 23.4995 30.0003 20.5837 30.0003 17C30.0003 13.4163 27.0846 10.5005 23.5009 10.5005Z" />
+                    <path v-if="headlights == 3" d="M11.7162 16.3136H10.6865C10.3074 16.3136 10 16.621 10 17C10 17.3791 10.3074 17.6865 10.6865 17.6865H11.7162C12.0952 17.6865 12.4026 17.3791 12.4026 17C12.4026 16.621 12.0952 16.3136 11.7162 16.3136Z" />
+                    <path v-if="headlights > 0" d="M15.3772 16.3136H14.3476C13.9685 16.3136 13.6611 16.621 13.6611 17C13.6611 17.3791 13.9685 17.6865 14.3476 17.6865H15.3772C15.7564 17.6865 16.0638 17.3791 16.0638 17C16.0638 16.621 15.7564 16.3136 15.3772 16.3136Z" />
+                    <path v-if="headlights == 3" d="M11.6058 20.9769L10.5868 21.1261C10.2117 21.1806 9.95242 21.5293 10.0073 21.9046C10.0572 22.2459 10.3506 22.4915 10.6854 22.4915C10.7186 22.4915 10.7521 22.4892 10.786 22.4843L11.8049 22.3351C12.1799 22.2804 12.4393 21.9318 12.3845 21.5564C12.3294 21.1817 11.9798 20.9225 11.6058 20.9769Z" />
+                    <path v-if="headlights > 0" d="M15.2782 20.4396L14.2592 20.5887C13.8842 20.6434 13.6248 20.9919 13.6797 21.3674C13.7296 21.7086 14.0229 21.9542 14.3577 21.9542C14.3909 21.9542 14.4245 21.9519 14.4583 21.9469L15.4773 21.7978C15.8524 21.7431 16.1117 21.3945 16.0568 21.0191C16.0022 20.644 15.6533 20.3837 15.2782 20.4396Z" />
+                    <path v-if="headlights == 3" d="M10.5868 12.874L11.6058 13.0231C11.6396 13.0282 11.6732 13.0305 11.7063 13.0305C12.0412 13.0305 12.3344 12.7848 12.3845 12.4436C12.4394 12.0682 12.1799 11.7197 11.8049 11.665L10.7859 11.5158C10.4109 11.4612 10.0623 11.7203 10.0073 12.0953C9.95242 12.4708 10.2118 12.8193 10.5868 12.874Z" />
+                    <path v-if="headlights > 0" d="M14.2592 13.4113L15.2782 13.5604C15.312 13.5655 15.3456 13.5678 15.3787 13.5678C15.7135 13.5678 16.0068 13.3222 16.0568 12.9809C16.1117 12.6055 15.8524 12.2569 15.4773 12.2022L14.4583 12.0531C14.0842 11.9964 13.7347 12.2576 13.6797 12.6327C13.6248 13.0081 13.8842 13.3566 14.2592 13.4113Z" />
+                </svg>
+
+            </div>
+            <div class="lock">
+                <svg :class="svgLockPaths[lock].class" viewBox="0 0 16 20">
+                    <path :d="svgLockPaths[lock].d" />
+                </svg>
+            </div>
+            <div class="fuel">
+                <svg viewBox="0 0 20 20" fill="none">
+                    <defs>
+                        <linearGradient id="fuel-gradient" x2="0" y2="1">
+                            <stop :offset="perFuel + '%'" style="stop-color: rgba(255, 255, 255, 0.2)"></stop>
+                            <stop :offset="perFuel + '%'" style="stop-color: #FFBC39"></stop>
+                        </linearGradient>
+                        <linearGradient id="charge-gradient" x2="0" y2="1">
+                            <stop :offset="perFuel + '%'" style="stop-color: rgba(255, 255, 255, 0.2)"></stop>
+                            <stop :offset="perFuel + '%'" style="stop-color: #367BE3"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path v-if="!isElectricCar" fill="url(#fuel-gradient)" d="M18.3557 4.7L18.3724 4.68333L14.2335 0.555573L13.0557 1.73333L15.4002 4.07776C14.3557 4.47776 13.6113 5.48333 13.6113 6.66667C13.6113 8.2 14.8557 9.44443 16.389 9.44443C16.7834 9.44443 17.1613 9.36109 17.5001 9.21109V17.2222C17.5002 17.8333 17.0002 18.3333 16.3891 18.3333C15.778 18.3333 15.278 17.8333 15.278 17.2222V12.2222C15.278 10.9945 14.2835 10 13.0557 10H11.9446V2.22224C11.9446 0.994427 10.9502 0 9.7224 0H3.05574C1.82792 0 0.833496 0.994427 0.833496 2.22224V20H11.9446V11.6667H13.6113V17.2222C13.6113 18.7556 14.8557 20 16.389 20C17.9223 20 19.1668 18.7556 19.1668 17.2222V6.66667C19.1668 5.9 18.8557 5.20557 18.3557 4.7ZM9.7224 7.77776H3.05574V2.22224H9.7224V7.77776ZM16.3891 7.77776C15.778 7.77776 15.278 7.27776 15.278 6.66667C15.278 6.05557 15.778 5.55557 16.3891 5.55557C17.0002 5.55557 17.5002 6.05557 17.5002 6.66667C17.5002 7.27776 17.0002 7.77776 16.3891 7.77776Z" />
+                    <path v-else fill="url(#charge-gradient)" d="M18.3557 4.7L18.3724 4.68333L14.2335 0.555573L13.0557 1.73333L15.4002 4.07776C14.3557 4.47776 13.6113 5.48333 13.6113 6.66667C13.6113 8.2 14.8557 9.44443 16.389 9.44443C16.7834 9.44443 17.1613 9.36109 17.5001 9.21109V17.2222C17.5002 17.8333 17.0002 18.3333 16.3891 18.3333C15.778 18.3333 15.278 17.8333 15.278 17.2222V12.2222C15.278 10.9945 14.2835 10 13.0557 10H11.9446V2.22224C11.9446 0.994427 10.9502 0 9.7224 0H3.05574C1.82792 0 0.833496 0.994427 0.833496 2.22224V20H11.9446V11.6667H13.6113V17.2222C13.6113 18.7556 14.8557 20 16.389 20C17.9223 20 19.1668 18.7556 19.1668 17.2222V6.66667C19.1668 5.9 18.8557 5.20557 18.3557 4.7ZM5.27792 16.6667V11.6667H3.05574L7.50016 3.33333V8.88891H9.7224L5.27792 16.6667ZM16.3891 7.77776C15.778 7.77776 15.278 7.27776 15.278 6.66667C15.278 6.05557 15.778 5.55557 16.3891 5.55557C17.0002 5.55557 17.5002 6.05557 17.5002 6.66667C17.5002 7.27776 17.0002 7.77776 16.3891 7.77776Z" />
+                </svg>
+            </div>
+            <div v-if="!isElectricCar" class="fuel-unit">{{ fuel }}л</div>
+            <div v-else class="fuel-unit">{{ fuel }}%</div>
+            <div class="danger">
+                <svg :class="{ orange: danger }" viewBox="0 0 20 16" fill="none" >
+                    <path d="M19.735 7.64186L17.4907 5.938C17.2878 5.78393 17.016 5.75779 16.7876 5.87163C16.5599 5.98446 16.4157 6.21708 16.4157 6.47171V7.51427H15.7518V6.4606C15.7518 6.09051 15.4518 5.79043 15.0818 5.79043H13.748V3.30216C13.748 2.93199 13.4479 2.63199 13.078 2.63199H10.994V1.92078H11.555C11.925 1.92078 12.2251 1.62071 12.2251 1.25068C12.2251 0.880655 11.925 0.580719 11.555 0.580719H7.22625C6.85629 0.580719 6.55621 0.880655 6.55621 1.25068C6.55621 1.62071 6.85629 1.92078 7.22625 1.92078H7.78765V2.63199H5.19732C4.82729 2.63199 4.52722 2.93199 4.52722 3.30216V4.61006H3.21865C2.84855 4.61006 2.54855 4.91006 2.54855 5.28009V6.81289H1.34V4.91175C1.34 4.54172 1.03999 4.24172 0.669965 4.24172C0.299937 4.24165 0 4.54172 0 4.91168V11.9201C0 12.2902 0.299937 12.5901 0.670032 12.5901C1.04006 12.5901 1.34006 12.2901 1.34006 11.9201V10.0189H2.54868V11.5903C2.54868 11.9604 2.84869 12.2603 3.21878 12.2603H4.90375L7.26769 15.1716C7.39494 15.3282 7.58605 15.4192 7.78779 15.4192H15.082C15.452 15.4192 15.7519 15.119 15.7519 14.7491V13.8637H16.4158V14.7491C16.4158 15.0108 16.5681 15.2483 16.8057 15.3579C16.8953 15.399 16.9909 15.4191 17.0858 15.4191C17.2428 15.4191 17.3979 15.3638 17.5219 15.2577L19.7663 13.3342C19.9148 13.2067 20.0001 13.0209 20.0001 12.8253V8.17537C20 7.96611 19.9019 7.7685 19.735 7.64186Z" />
+                </svg>
+
+            </div>
+            <div class="left-arrow">
+                <svg :class="{ green: leftArrow }" viewBox="0 0 24 18" fill="none" >
+                    <path d="M10.6955 17.7064C10.8824 17.6414 11.0044 17.4898 11.0044 17.3215L11.0044 12.7572L23.5002 12.7572C23.7761 12.7572 24 12.5706 24 12.3407L24 5.6762C24 5.44628 23.7761 5.25966 23.5002 5.25966L11.0043 5.25966L11.0043 0.677874C11.0043 0.509609 10.8823 0.35798 10.6964 0.293002C10.5095 0.228844 10.2945 0.263832 10.1516 0.382972L0.146906 8.6927C0.0529514 8.77099 -4.6153e-05 8.87681 -4.61578e-05 8.9876C-4.61626e-05 9.09838 0.0529514 9.20421 0.145921 9.2825L10.1506 17.6164C10.2936 17.7355 10.5085 17.7713 10.6955 17.7064Z" />
+                </svg>
+            </div>
+            <div class="right-arrow">
+                <svg :class="{ green: rightArrow }" viewBox="0 0 24 18" fill="none">
+                    <path d="M13.3045 0.293638C13.1176 0.358615 12.9956 0.510244 12.9956 0.678508L12.9956 5.2428L0.499848 5.2428C0.22394 5.2428 -5.38054e-07 5.42942 -5.28004e-07 5.65934L-2.36691e-07 12.3238C-2.26641e-07 12.5537 0.223941 12.7403 0.499848 12.7403L12.9957 12.7403L12.9957 17.3221C12.9957 17.4904 13.1177 17.642 13.3036 17.707C13.4905 17.7712 13.7055 17.7362 13.8484 17.617L23.8531 9.3073C23.947 9.22901 24 9.12319 24 9.0124C24 8.90162 23.947 8.79579 23.8541 8.7175L13.8494 0.383607C13.7064 0.264467 13.4915 0.228658 13.3045 0.293638Z" />
+                </svg>
+
+            </div>
+            <div class="bottom-panel">
+                <div class="road-perspective">
+                    <svg class="white" viewBox="0 0 16 12" fill="none" >
+                        <path d="M15.7712 9.96479L12.1053 0.786878C12.0584 0.675505 11.9822 0.57882 11.8768 0.496853C11.7712 0.414702 11.6598 0.373718 11.5426 0.373718H8.56242C8.63854 0.373718 8.70594 0.401492 8.76454 0.457132C8.8231 0.512927 8.85534 0.578728 8.86128 0.654906L8.99319 2.34292C8.99907 2.42498 8.9757 2.49238 8.92314 2.54504C8.87024 2.59778 8.80583 2.62411 8.72956 2.62411H7.27023C7.19405 2.62411 7.12966 2.59778 7.07689 2.54504C7.02414 2.49241 7.00071 2.42498 7.00665 2.34292L7.13853 0.654906C7.14432 0.578728 7.1765 0.512927 7.23522 0.457132C7.29381 0.401585 7.36115 0.373718 7.43743 0.373718H4.45715C4.33996 0.373718 4.22859 0.414702 4.12307 0.496853C4.01764 0.578728 3.94152 0.675505 3.89456 0.786878L0.228565 9.96479C0.076178 10.3281 0 10.668 0 10.9846C0 11.4124 0.134774 11.6263 0.404415 11.6263H6.59337C6.51719 11.6263 6.45281 11.5985 6.4 11.5428C6.34725 11.487 6.32382 11.4213 6.32976 11.345L6.50552 9.09471C6.51137 9.01841 6.54361 8.95255 6.60221 8.89682C6.66077 8.84105 6.72824 8.81347 6.80441 8.81347H9.19549C9.27179 8.81347 9.33901 8.84105 9.39779 8.89682C9.45639 8.95255 9.48863 9.01841 9.49445 9.09471L9.67042 11.345C9.67642 11.4213 9.65271 11.487 9.60015 11.5428C9.54747 11.5985 9.48296 11.6263 9.40669 11.6263H15.5956C15.8651 11.6263 16 11.4124 16 10.9846C16 10.6682 15.9237 10.3282 15.7712 9.96479ZM9.32753 6.87902C9.33322 6.94941 9.30982 7.00798 9.25714 7.05478C9.20455 7.10177 9.14281 7.12517 9.07254 7.12517H6.92746C6.8571 7.12517 6.79545 7.10177 6.74283 7.05478C6.69002 7.00779 6.66662 6.9492 6.67244 6.87902V6.84383L6.88349 4.03085C6.88934 3.95464 6.92158 3.88874 6.98017 3.83304C7.03877 3.77734 7.1062 3.74954 7.18238 3.74954H8.8174C8.89371 3.74954 8.96114 3.77725 9.0197 3.83304C9.07827 3.88874 9.11054 3.95464 9.11645 4.03085L9.32743 6.84383V6.87902H9.32753Z" />
+                    </svg>
+
+                </div>
+                <div class="mileage">{{ mileage | split }} км</div>
+
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak id="interactionMenu" v-if="show && enable" v-bind:style="{left: left + 'vw'}">
+        <div class="interaction_item" v-for="(item, index) in menu.items" @click="onClick(index)">
+            <div class="icon"><img :src="imgSrc(index)" />
+            </div>
+            <div class="text">{{ item.text }}</div>
+        </div>
+    </div>
+
+    <div id="inventory" v-show="show" :class="{spin: spin, 'non-environment': !environment.length || searchMode}" :style="{opacity: 1}">
+        <div class="environment" v-if="environment.length && !searchMode">
+            <div class="container" v-for="place in environment" v-bind:key="place.header">
+                <div class="header" @click="place.showPockets = !place.showPockets" :class="{hidden: !place.showPockets}">
+                    <div class="title">{{ place.header }} {{ (debug)? place.sqlId : "" }}</div>
+                    <div>{{ +getPlaceWeight(place).toFixed(1) }} кг</div>
+                </div>
+                <transition name="slide">
+                    <div class="pockets" v-show="place.showPockets">
+                        <div class="items" v-for="pocket in place.pockets" v-bind:style="{gridTemplateColumns: 'repeat(' + pocket.cols + ', 1fr)'}">
+                            <div class="column" v-for="n in pocket.cols * pocket.rows" :key="n-1" :class="columnClass(n-1, pocket, place)" @mouseenter="columnMouseHandler(place, pocket, n-1, $event)"
+                                @mouseleave="columnMouseHandler(place, pocket, n-1, $event)">
+                                <div class="item" v-if="pocket.items[n-1]" @mouseenter="itemMouseHandler(pocket.items[n-1], $event)" @mouseleave="itemMouseHandler(pocket.items[n-1], $event)" @mousemove="itemMouseHandler(pocket.items[n-1], $event)"
+                                    @mousedown="itemMouseHandler(pocket.items[n-1], $event)" :style="itemStyle(pocket.items[n-1])" :class="{dragging: pocket.items[n-1] == itemDrag.item, found: pocket.items[n-1].found }">
+                                    <div class="count" v-if="pocket.items[n-1].params.count && !pocket.items[n-1].found">{{ pocket.items[n-1].params.count }}</div>
+                                    <div class="eye" v-if="pocket.items[n-1].found"><img src="img/inventory/eye.svg" /></div>
+                                    <!--<div class="health" v-if="pocket.items[n-1].params.health" v-bind:style="{top: 100 - pocket.items[n-1].params.health + '%', 'border-color': valueColor(pocket.items[n-1].params.health)}"></div>-->
+                                    <div class="sqlid" v-if="debug">#{{ pocket.items[n-1].sqlId }}</div>
+                                    <div v-if="pocket.items[n-1].wait" v-cloak="v-cloak" class="loader lds-css ng-scope">
+                                        <div class="lds-rolling">
+                                            <div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+            </div>
+            <div class="empty" v-show="!environment.length">Без взаимодействия</div>
+        </div>
+        <div class="equipment">
+            <div class="header">
+                <div class="title">{{ equipmentTitle }}</div>
+                <!--<img src="img/inventory/satiety.png" /><span class="satiety" :style="{color: valueColor(satiety)}">{{ Math.ceil(satiety) }}%</span>
+                <img src="img/inventory/thirst.png" /><span class="thirst" :style="{color: valueColor(thirst)}">{{ Math.ceil(thirst) }}%</span>-->
+                <!-- <div>Голод <span class="satiety">{{ satiety }}</span>%</div> -->
+                <!-- <div>Жажда <span class="thirst">{{ thirst }}</span>%</div> -->
+            </div>
+            <div class="body-items">
+                <div class="column" :class="{focus: itemDrag.item && itemDrag.accessColumns.bodyFocus == n-1, active: itemDrag.item && bodyList[n-1] && bodyList[n-1].includes(itemDrag.item.itemId)}" v-for="n in 13" @mouseenter="onBodyItemEnter(n-1)" @mouseleave="onBodyItemLeave(n-1)"
+                    :style="{backgroundImage: itemGradient(equipment[n-1], true) }">
+                    <!-- <div class="item" v-if="equipment[n-1]" v-bind:style="{backgroundImage: 'url(' + urlItemImg(equipment[n-1].itemId) + ')'}">
+                       <div class="count" v-if="equipment[n-1].params.count">{{ equipment[n-1].params.count }}</div>
+                       <div class="health" v-if="equipment[n-1].params.health" v-bind:style="{top: 100 - equipment[n-1].params.health + '%'}"></div>
+                       <div class="sqlid" v-if="debug">#{{ equipment[n-1].sqlId }}</div>
+                   </div> -->
+                    <div class="item" v-if="equipment[n-1] && !equipment[n-1].search" @mouseenter="itemMouseHandler(equipment[n-1], $event)" @mouseleave="itemMouseHandler(equipment[n-1], $event)" @mousemove="itemMouseHandler(equipment[n-1], $event)"
+                        @contextmenu="itemMouseHandler(equipment[n-1], $event)" :style="{backgroundImage: 'url('+urlItemImg(equipment[n-1].itemId)+')' }" @mousedown="itemMouseHandler(equipment[n-1], $event)"
+                        :class="{dragging: equipment[n-1] == itemDrag.item}">
+                        <div class="count" v-if="equipment[n-1].params.count">{{ equipment[n-1].params.count }}</div>
+                        <!--<div class="health" v-if="equipment[n-1].params.health" v-bind:style="{top: 100 - equipment[n-1].params.health + '%', 'border-color': valueColor(equipment[n-1].params.health)}"></div>-->
+                        <div class="sqlid" v-if="debug">#{{ equipment[n-1].sqlId }}</div>
+                        <div v-if="equipment[n-1].wait" v-cloak="v-cloak" class="loader lds-css ng-scope">
+                            <div class="lds-rolling">
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="starvation" v-if="!searchMode">
+                <div :class="['satiety', 'record', { red: satiety <= 10 } ]">
+                    <div class="img"><img src="img/hud/burger.svg"/></div>
+                    <div class="progress"><div :style="{ width: satiety+'%' }"></div></div>
+                    <div class="percent">{{ +satiety.toFixed(1) }}%</div>
+                </div>
+                <div :class="['thirst', 'record', { red: thirst <= 10 } ]">
+                    <div class="img"><img src="img/hud/glass.svg"/></div>
+                    <div class="progress"><div :style="{ width: thirst+'%' }"></div></div>
+                    <div class="percent">{{ +thirst.toFixed(1) }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="playerInventory">
+            <div class="header">
+                <div class="title">{{ searchMode && searchList.length ? 'Обыск...' : 'Инвентарь' }}</div>
+                <div>Тяжесть {{ commonWeight }} из {{ maxPlayerWeight }} кг</div>
+            </div>
+            <div class="block">
+                <div class="container" v-for="item in equipment" v-bind:key="item.sqlId" v-if="item.pockets" :class="{drag: itemDrag.item && itemDrag.item.sqlId == item.sqlId}">
+                    <div class="header" @click="item.showPockets = !item.showPockets" :class="{hidden: !item.showPockets}">
+                        <img :class="{hidden: !item.showPockets}" src="img/inventory/arrow.svg" />
+                        <div class="title">{{ getItemName(item) }}</div>
+                        <div>{{ +getPlaceWeight(item).toFixed(1) }} кг</div>
+                    </div>
+                    <transition name="slide">
+                        <div class="pockets" v-show="item.showPockets">
+                            <div class="items" v-show="!pocket.search" v-for="pocket in item.pockets" v-bind:style="{gridTemplateColumns: 'repeat(' + pocket.cols + ', 1fr)'}">
+                                <div class="column" v-for="n in pocket.cols * pocket.rows" :key="n-1" :class="columnClass(n-1, pocket, item)" @mouseenter="columnMouseHandler(item, pocket, n-1, $event)"
+                                    @mouseleave="columnMouseHandler(item, pocket, n-1, $event)">
+                                    <div class="item" v-if="pocket.items[n-1] && !pocket.items[n-1].search" @mouseenter="itemMouseHandler(pocket.items[n-1], $event)" @mouseleave="itemMouseHandler(pocket.items[n-1], $event)" @mousemove="itemMouseHandler(pocket.items[n-1], $event)"
+                                        @contextmenu="itemMouseHandler(pocket.items[n-1], $event)" @mousedown="itemMouseHandler(pocket.items[n-1], $event)" :style="itemStyle(pocket.items[n-1])" :class="{dragging: pocket.items[n-1] == itemDrag.item, found: pocket.items[n-1].found }">
+                                        <div class="count" v-if="pocket.items[n-1].params.count && !pocket.items[n-1].found">{{ pocket.items[n-1].params.count }}</div>
+                                        <div class="eye" v-if="pocket.items[n-1].found"><img src="img/inventory/eye.svg" /></div>
+                                        <!--<div class="health" v-if="pocket.items[n-1].params.health" v-bind:style="{top: 100 - pocket.items[n-1].params.health + '%', 'border-color': valueColor(pocket.items[n-1].params.health)}"></div>-->
+                                        <div class="sqlid" v-if="debug">#{{ pocket.items[n-1].sqlId }}</div>
+                                        <div v-if="pocket.items[n-1].wait" v-cloak="v-cloak" class="loader lds-css ng-scope">
+                                            <div class="lds-rolling">
+                                                <div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </div>
+            <!--<div class="empty" v-show="!havePockets">Без карманов</div>-->
+        </div>
+        <div class="hands" :class="{active: itemDrag.item, blocked: handsBlock}">
+            <div class="slot" v-bind:class="{busy: equipment[13] && !equipment[13].search, focus: itemDrag.item && itemDrag.accessColumns.bodyFocus == 13}" @mouseenter="onBodyItemEnter(13)" @mouseleave="onBodyItemLeave(13)"
+                :style="{backgroundImage: itemGradient(equipment[13], true)}">
+                <div class="item" v-if="equipment[13] && !equipment[13].search" v-bind:style="{backgroundImage: 'url(' + urlItemImg(equipment[13].itemId) + ')'}"
+                    @mousedown="itemMouseHandler(equipment[13], $event)"
+                    @contextmenu="itemMouseHandler(equipment[13], $event)" :class="{dragging: equipment[13] == itemDrag.item}">
+                    <div class="count" v-if="equipment[13].params.count">{{ equipment[13].params.count }}</div>
+                    <!--<div class="health" v-if="equipment[13].params.health" v-bind:style="{top: 100 - equipment[13].params.health + '%', 'border-color': valueColor(equipment[13].params.health)}"></div>-->
+                    <div class="sqlid" v-if="debug">#{{ equipment[13].sqlId }}</div>
+                    <div v-if="equipment[13].wait" v-cloak="v-cloak" class="loader lds-css ng-scope">
+                        <div class="lds-rolling">
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+                <img v-if="!equipment[13]" src="img/inventory/hand.svg" />
+                <img v-if="!equipment[13]" src="img/inventory/hand.svg" />
+            </div>
+        </div>
+        <div class="hotkeys">
+            <div class="key" v-if="!searchMode" :class="{focus: itemDrag.item && itemDrag.accessColumns.hotkeyFocus == n, active: itemDrag.item && hotkeysList[itemDrag.item.itemId] && !(hotkeys[n] && getItem(hotkeys[n].sqlId)), has: hotkeys[n] && getItem(hotkeys[n].sqlId) }" v-for="n in 9" @mouseenter="onHotkeyItemEnter(n)" @mouseleave="onHotkeyItemLeave(n)">
+                <div class="item" v-if="hotkeys[n] && getItem(hotkeys[n].sqlId)"
+                    v-bind:style="{backgroundImage: 'url('+urlItemImg(hotkeys[n].itemId)+')'}"
+                    @mousedown="itemMouseHandler(hotkeys[n], $event)">
+                    <!--<span class="close" @click="unbindHotkey(n)">x</span>-->
+
+                    <div class="count" v-if="hotkeys[n].params.count">{{ hotkeys[n].params.count }}</div>
+                    <!--<div class="health" v-if="hotkeys[n].params.health" v-bind:style="{top: 100 - hotkeys[n].params.health + '%', 'border-color': valueColor(hotkeys[n].params.health)}"></div>-->
+                    <div class="sqlid" v-if="debug">#{{ hotkeys[n].sqlId }}</div>
+                    <div v-if="hotkeys[n].wait" v-cloak="v-cloak" class="loader lds-css ng-scope">
+                        <div class="lds-rolling">
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="hotkey">{{ (n == 10)? 0 : n }}</span>
+            </div>
+        </div>
+        <div class="item-desc" v-if="itemDesc.item && !itemMenu.item && !itemDrag.item && (getItem(itemDesc.item.sqlId) || getEnvironmentItem(itemDesc.item.sqlId))" :style="{left: itemDesc.x + 'px', top: itemDesc.y + 'px'}">
+            <div class="title">{{ descItemName }}</div>
+            <div v-if="debug">itemId: #{{ itemDesc.item.itemId }}</div>
+            <div class="item" v-if="itemDesc.item" :style="itemStyle(itemDesc.item)">
+                <div class="sqlid" v-if="debug">#{{ itemDesc.item.sqlId }}</div>
+                <div class="count" v-if="itemDesc.item.params.count">{{ itemDesc.item.params.count }}</div>
+                <!--<div class="health" v-if="itemDesc.item.params.health" :style="{top: 100 - itemDesc.item.params.health + '%', 'border-color': valueColor(itemDesc.item.params.health)}"></div>-->
+            </div>
+            <div class="description">{{ itemsInfo[itemDesc.item.itemId].description }}</div>
+            <div class="params">
+                <div class="param" v-for="param in descItemParams">
+                    <div class="name">{{ param.name }}</div>
+                    <div class="value">{{ param.value }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="item-notif" v-if="itemNotif.text" :style="{left: itemNotif.x + 'px', top: itemNotif.y + 'px'}">
+            {{ itemNotif.text }}
+        </div>
+
+        <div class="item-menu" v-if="itemMenu.item && !itemDrag.item" :style="{left: itemMenu.x + 'px', top: itemMenu.y + 'px'}">
+            <div class="menu-item" v-for="(value, key) in getItemsMenu(itemMenu.item.itemId)" @click="value.handler(itemMenu.item)">
+                {{ key }}
+                <div class="arrow" v-if="value.items">></div>
+            </div>
+        </div>
+        <!-- <div class="item-menu" v-if="itemMenu.item && !itemDrag.item" :style="{left: itemMenu.x + 'px', top: itemMenu.y + 'px'}">
+            <div class="menu-item" v-for="(value, key) in itemsMenu[itemMenu.item.itemId]" @click="value.handler(itemMenu.item)">
+                {{ key }}
+                <div class="arrow" v-if="value.items">></div>
+            </div>
+        </div> -->
+        <div class="item-drag" v-if="itemDrag.item" :style="{left: itemDrag.x + 'px', top: itemDrag.y + 'px'}">
+            <div class="item" v-if="itemDrag.item" :style="itemStyle(itemDrag.item)">
+                <!-- <div class="count" v-if="itemDrag.item.params.count">{{ itemDrag.item.params.count }}</div>
+               <div class="health" v-if="itemDrag.item.params.health" :style="{top: 100 - itemDrag.item.params.health + '%'}"></div>
+               <div class="sqlid" v-if="debug">#{{ itemDrag.item.sqlId }}</div> -->
+            </div>
+        </div>
+
+        <div class="bin" v-if="itemDrag.item && getItem(itemDrag.item.sqlId)" @mouseenter="binMouseHandler($event)" @mouseleave="binMouseHandler($event)">
+            <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.8557 4.54545C16.8557 3.05494 18.019 1.9656 19.5095 1.9656H30.4187C31.9087 1.9656 33.072 3.05494 33.072 4.54545V7.37101H35.0376V4.54545C35.0376 1.97136 32.9928 0 30.4187 0H19.5095C16.9354 0 14.8901 1.97136 14.8901 4.54545V7.37101H16.8557V4.54545Z" fill="white"/>
+                <path d="M13.341 50.0001H36.5841C38.8252 50.0001 40.5643 48.0287 40.5643 45.5775V15.2335H9.36035V45.5775C9.36035 48.0287 11.0994 50.0001 13.341 50.0001ZM31.2277 19.9263C31.2277 19.3835 31.6677 18.9435 32.2105 18.9435C32.7532 18.9435 33.1933 19.3835 33.1933 19.9263V43.1449C33.1933 43.6877 32.7532 44.1277 32.2105 44.1277C31.6677 44.1277 31.2277 43.6877 31.2277 43.1449V19.9263ZM23.9795 19.9263C23.9795 19.3835 24.4196 18.9435 24.9623 18.9435C25.5051 18.9435 25.9451 19.3835 25.9451 19.9263V43.1449C25.9451 43.6877 25.5051 44.1277 24.9623 44.1277C24.4196 44.1277 23.9795 43.6877 23.9795 43.1449V19.9263ZM16.7314 19.9263C16.7314 19.3835 17.1714 18.9435 17.7142 18.9435C18.2569 18.9435 18.697 19.3835 18.697 19.9263V43.1449C18.697 43.6877 18.2569 44.1277 17.7142 44.1277C17.1714 44.1277 16.7314 43.6877 16.7314 43.1449V19.9263Z" fill="white"/>
+                <path d="M8.353 13.2679H41.5715C42.9286 13.2679 44.0285 12.168 44.0285 10.8109C44.0285 9.45378 42.9286 8.35388 41.5715 8.35388H8.353C6.99589 8.35388 5.896 9.45378 5.896 10.8109C5.896 12.168 6.99589 13.2679 8.353 13.2679Z" fill="white"/>
+        </div>
+    </div>
+
+    <div id="craft" v-if="show && crafter" :style="{opacity: 1}">
+        <div class="left">
+            <div class="header">
+                <div v-for="(type, i) in crafter.types" v-key="i" :class="{active: type == currentType}" @click="crafter.typeI = i">{{ type.name }}</div>
+            </div>
+            <div class="item-list">
+                <div v-for="(item, i) in currentType.items" v-key="i" :class="{active: currentItem == item}" class="item" @click="onClickItem(i)">
+                    <div class="icon" :style="{backgroundImage: `url(${inventory.urlItemImg(item.itemId)})`}"></div>
+                    <div class="info">
+                        <div class="name">{{ inventory.itemsInfo[item.itemId].name | itemName }}</div>
+                        <div class="materials">
+                            <div v-for="mat in item.materials" v-key="i" :class="{deficit: isDeficit(mat)}">{{ getMaterialName(item, mat) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right">
+            <div class="queue" v-show="!currentItem">
+                <div class="header">
+                    <div class="title">{{ crafter.name }}</div>
+                    <div class="help" :class="{active: helpShow}" @click="helpShow = !helpShow"><i class="fas fa-info"></i></div>
+                </div>
+                <div class="column-list" v-show="!helpShow">
+                    <div v-for="(col, i) in crafter.queue.columns" v-key="i" class="column" :class="[col.state, col.itemId ? '' : 'empty', playerMenu.name == col.playerName ? '' : 'disabled']" @click="onClickColumn(i)">
+                        <div class="item" v-show="col.itemId">
+                            <div class="icon" :style="{backgroundImage: `url(${inventory.urlItemImg(col.itemId)})`}"></div>
+                            <div class="info">
+                                <div class="time" v-show="col.time">{{ col.time | time }}</div>
+                                <div class="state">{{ stateName(col) }}</div>
+                            </div>
+                        </div>
+                        <div class="fill" v-show="col.state == 'process'" :style="progressStyle(col)"></div>
+                    </div>
+                </div>
+                <div class="bonfire" v-show="!helpShow && crafter.destroyTime">
+                    <div class="title" :class="{deficit: crafter.destroyTime < 60}">
+                        Горит {{ crafter.destroyTime | time }}
+                        <span v-show="firewoodCount">+{{ firewoodCount * 20 | time }}</span>
+                    </div>
+                    <div class="selector">
+                        <div class="button" @click="onClickDownFirewood">-</div>
+                        <div class="count">{{ firewoodCount }} ед.</div>
+                        <div class="button" @click="onClickUpFirewood">+</div>
+                    </div>
+                    <div class="button acceptFirewood" @click="onClickAcceptFirewood">Подкинуть</div>
+                </div>
+                <div class="help-info" v-show="helpShow">{{ crafter.description }}</div>
+            </div>
+            <div class="craftItem" v-if="currentItem">
+                <div class="param-list" v-if="paramsShow">
+                    <div v-for="param in currentItemParams" class="param">
+                        <div class="key">{{ param.name }}</div>
+                        <div class="value">{{ param.value }}</div>
+                    </div>
+                </div>
+                <div v-else class="icon" :style="{backgroundImage: `url(${inventory.urlItemImg(currentItem.itemId)})`}"></div>
+                <div class="title">
+                    <div class="name">{{ inventory.itemsInfo[currentItem.itemId].name }}</div>
+                    <div class="button details" :class="{active: paramsShow}" @click="onClickDetails"><i class="fas fa-ellipsis-h"></i></div>
+                </div>
+                <div class="description">
+                    <div class="material-list">
+                        <div v-for="mat in currentItem.materials" class="material" :class="{deficit: isDeficit(mat)}">
+                            <div class="name">{{ inventory.itemsInfo[mat.itemId].name }}</div>
+                            <div class="count">{{ getMaterialCount(mat.itemId) }}/{{ mat.count }}</div>
+                        </div>
+                    </div>
+                    <div class="skill" :class="{deficit: isDeficitSkill}">
+                        <div class="title">
+                            <div>Навык</div>
+                            <div>{{ skillInfo(skill).level }}/{{ skillInfo(currentItem.skill).level }} lvl</div>
+                        </div>
+                        <div class="progress">
+                            <div class="fill" :style="progressSkillStyle"></div>
+                        </div>
+                    </div>
+                    <div>{{ inventory.itemsInfo[currentItem.itemId].description }}</div>
+                </div>
+                <div class="time" v-show="canCraft">{{ currentItem.time | time }}</div>
+                <div class="button make" :class="{disabled: !canCraft}" @click="onClickCraft">Изготовить</div>
+            </div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="carSpecifications" v-if="show">
+        <div class="header">Характеристики</div>
+        <div class="body">
+            <div class="record" v-for="record in body">
+                <div class="left">{{ record.header }}</div>
+                <div class="right">{{ record.value }} {{ record.unit }}</div>
+                <div class="line"></div>
+            </div>
+        </div>
+        <div class="footer">${{ splitPrice }}</div>
+    </div>
+
+    <div v-cloak="v-cloak" id="check" v-if="show">
+        <div class="close" @click="hide">X</div>
+        <div class="content">
+            <div class="header">
+                <div class="name">{{ checkName }}</div>
+                <div class="logo">
+                    <img :src="pathToLogo" />
+                </div>
+            </div>
+            <svg class="head-line">
+                <line x1="0" y1="0" x2="100%" y2="0"></line>
+            </svg>
+            <div class="body">
+                <div class="record" v-for="record in records">
+                    <div class="left">{{ record.header }}</div>
+                    <div class="right">{{ record.price | split }}$</div>
+                </div>
+                <svg class="total-line">
+                    <line x1="70%" y1="0" x2="100%" y2="0"></line>
+                </svg>
+                <div class="total">
+                    <span>Итого:</span> {{ totalPrice | split }}$
+                </div>
+            </div>
+            <div class="footer">
+                <div>
+                    <div class="pay" @click="pay($event)">
+                        <div class="noevent">Оплатить</div>
+                        <svg class="noevent">
+                            <line x1="0" y1="0" x2="100%" y2="0"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <div class="nopay" @click="refuse">
+                        <div class="noevent">Отказаться</div>
+                        <svg class="noevent">
+                            <line x1="0" y1="0" x2="100%" y2="0"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div v-cloak="v-cloak" id="input-window" v-if="show">
+        <div class="header">{{ header }}</div>
+        <div class="body">
+            <div class="description" v-html="description"></div>
+            <div class="hint">{{ hint }}</div>
+            <input :placeholder="inputHint" v-model="value" />
+        </div>
+        <div class="footer">
+            <div class="left" @click="accept">{{ leftWord }}</div>
+            <div class="right" @click="decline">{{ rightWord }}</div>
+        </div>
+    </div>
+
+    <div v-cloak="v-cloak" id="selection-window" v-if="show">
+        <div class="header">{{ header }}</div>
+        <div class="description" v-html="description"></div>
+        <div class="body">
+            <div :class="['record', { selected: record == selected }]" v-for="record in records" :key="record.text" @click="select(record)">{{ record.text }}</div>
+        </div>
+        <div class="footer">
+            <div class="left" @click="accept">Принять</div>
+            <div class="right" @click="decline">Отменить</div>
+        </div>
+    </div>
+
+
+    <div v-cloak id="accept-window" v-if="show" :style="{opacity: 1}">
+        <div>
+            <div class="head">{{ header }}</div>
+            <div class="content" v-html="text"></div>
+            <div class="btns">
+                <div class="agree" @click="accept()">Подтвердить</div>
+                <div class="cancel" @click="decline()">Отменить</div>
+            </div>
+        </div>
+        <!--<div class="header">{{ header }}</div>
+        <div class="footer">
+            <div class="left" @click="accept">{{ leftWord }}</div>
+            <div class="right" @click="decline">{{ rightWord }}</div>
+        </div>-->
+    </div>
+
+
+    <div v-cloak id="terminal" v-if="show" :style="{left: pos.x + 'px', top: pos.y + 'px'}">
+        <div class="header" @mousedown="onHeaderMouseDown($event)">
+            <div>Консоль разработчика</div>
+            <div class="close" @click="show = false">x</div>
+        </div>
+        <div class="content scroll">
+            <div v-for="mess in messages" v-bind:class="[mess.type]">
+                <p v-html="mess.text"></p>
+            </div>
+        </div>
+        <div class="footer">
+            <input type="text" v-model="inputText" v-on:keyup.enter="onInputEnter" v-on:keyup.up="onInputUp" v-on:keyup.down="onInputDown" :ref="'input'" placeholder="classic command..." autofocus />
+        </div>
+    </div>
+
+    <!-- ------------------------ СПИСОК ИГРОКОВ ------------------------ -->
+
+    <div id="playersList" v-cloak :class="{inactive: loader}" v-if="show">
+        <div class="players_list-head">
+            <table rules="all">
+                <colgroup>
+                    <col style="width: 10%" />
+                    <col style="width: 40%" />
+                    <col style="width: 40%" />
+                    <col style="width: 10%" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th @click="setSortedBy('id')">id <span v-if="sortedBy == 'id'">▼</span></th>
+                        <th @click="setSortedBy('name')">Имя <span v-if="sortedBy == 'name'">▼</span></th>
+                        <th @click="setSortedBy('faction')">Организация <span v-if="sortedBy == 'faction'">▼</span></th>
+                        <th>ping</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="players_list-navigate_panel">
+                <span>Поиск:</span>
+                <input v-model="search" />
+                <div @click="setType('id')">
+                    id
+                </div>
+                <div @click="setType('name')">
+                    Имя
+                </div>
+                <div @click="setType('faction')">
+                    Организация
+                </div>
+            </div>
+        </div>
+        <div class="players_list-body">
+            <table rules="all">
+                <colgroup>
+                    <col style="width: 10%" />
+                    <col style="width: 40%" />
+                    <col style="width: 40%" />
+                    <col style="width: 10%" />
+                </colgroup>
+                <tbody>
+                    <tr v-for="player in getPlayers()">
+                        <th>{{ player.id }}</th>
+                        <th>{{ player.name }}</th>
+                        <th>{{ player.faction }}</th>
+                        <th>{{ player.ping }}</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div v-cloak="v-cloak" id="loader" class="loader lds-css ng-scope" v-if="loader">
+            <div class="lds-rolling">
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ------------------------ СПИСОК ИГРОКОВ ------------------------ -->
+
+    <div v-cloak id="gunLicense" v-if="show">
+        <span class="close" @click="close">x</span>
+        <div class="header">{{ header }}</div>
+        <div class="line"></div>
+        <div class="content">
+            <div class="name">{{ name }}</div>
+            <div class="sex">
+                <div class="key">Пол</div>
+                <div class="value">{{ prettySex }}</div>
+            </div>
+            <div class="date">
+                <div class="key">Дата выдачи</div>
+                <div class="value">{{ date }}</div>
+            </div>
+            <div class="number">№ {{ number }}</div>
+        </div>
+    </div>
+
+    <!-- ------------------------ ПЛАНШЕТ ПД ------------------------ -->
+    <link rel="stylesheet" type="text/css" href="css/mapCase.css" />
+    <link rel="stylesheet" type="text/css" href="css/mapCasePd.css" />
+    <link rel="stylesheet" type="text/css" href="css/mapCaseFIB.css" />
+    <link rel="stylesheet" type="text/css" href="css/mapCaseEms.css" />
+    <link rel="stylesheet" type="text/css" href="css/mapCaseNg.css" />
+    <link rel="stylesheet" type="text/css" href="css/mapCaseGover.css" />
+    <link rel="stylesheet" type="text/css" href="css/mapCaseWNews.css" />
+
+    <script type="text/x-template" id="map-case-pd-dbSearch">
+        <div class="dbSearch">
+            <div class="logo"><img :src="logo"/></div>
+            <div class="title">ПОИСК ПО БАЗЕ ДАННЫХ</div>
+            <div class="dbSearch-menu">
+                <div class="main-line"></div>
+                <div :class="{focus: menuItemInFocus == 'phone'}" @click="onClickMenuItem('phone')">
+                    <div>Номер телефона</div>
+                    <div class="line"></div>
+                </div>
+                <div></div>
+                <div :class="{focus: menuItemInFocus == 'name'}" @click="onClickMenuItem('name')">
+                    <div>Имя или/и фамилия</div>
+                    <div class="line"></div>
+                </div>
+                <div></div>
+                <div :class="{focus: menuItemInFocus == 'car'}" @click="onClickMenuItem('car')">
+                    <div>Номер автомобиля</div>
+                    <div class="line"></div>
+                </div>
+            </div>
+            <div class="input">
+                <input
+                    :placeholder="menuItems[menuItemInFocus].hint"
+                    v-model="menuItems[menuItemInFocus].inputValue"
+                    @keypress="menuItems[menuItemInFocus].inputCheck($event); enterHandler($event)"
+                    @focus="setFocus(true)" @blur="setFocus(false)"
+                />
+            </div>
+            <div class="search" @click="search()">Поиск</diV>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-pd-dbResult">
+        <div class="dbResult board">
+            <div class="title">Результат: {{ list.length }}</div>
+            <div class="table">
+                <div class="head">
+                    <div class="first" @click="onClickSort('num')">
+                        <div>#</div>
+                        <svg :class="{focus: sortMod.mod == 'num'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('name')">
+                        <div>Имя и фамилия</div>
+                        <svg :class="{focus: sortMod.mod == 'name'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('phone')">
+                        <div>Номер телефона</div>
+                        <svg :class="{focus: sortMod.mod == 'phone'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('address')">
+                        <div>Проживание</div>
+                        <svg :class="{focus: sortMod.mod == 'address'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                </div>
+                <div class="tbody">
+                    <div class="record" @click="onClickRecord(record)" v-for="record in sortedList" :key="record.id">
+                        <div class="first"><div class="record-align">{{ record.num }}</div></div>
+                        <div><div class="record-align">{{ record.name }}</div></div>
+                        <div><div class="record-align">{{ record.phone }}</div></div>
+                        <div><div class="record-align">{{ record.address | textSplice(28) }}</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-calls">
+        <div class="calls board">
+            <div class="title">Вызовы</div>
+            <div class="table" ref="table">
+                <div class="head">
+                    <div class="first" @click="onClickSort('num')">
+                        <div>Км</div>
+                        <svg :class="{focus: sortMod.mod == 'num'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('name')">
+                        <div>Имя и фамилия</div>
+                        <svg :class="{focus: sortMod.mod == 'name'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div>Причина вызова</div>
+                    <div>Действие</div>
+                </div>
+                <div class="tbody">
+                    <div class="record" v-for="record in sortedList" :key="record.name"
+                        @mousemove="mousemove($event, record)"
+                        @mouseout="mouseout">
+                        <div class="first"><div class="record-align">{{ getDist(record) | km }}</div></div>
+                        <div><div class="record-align">{{ record.name }}({{ record.num }})</div></div>
+                        <div><div class="record-align">{{ record.description | textSplice(25) }}</div></div>
+                        <div><div class="record-align btn" @click="onClickAccept(record)">Принять</div></div>
+                    </div>
+                </div>
+                <div v-if="hint.data" class="hint" :style="hint.style" ref="hint">
+                    <div>
+                        <img src="img/mapCase/road.svg" />
+                        {{ hint.data.dist }} м
+                    </div>
+                    {{ hint.data.description }}
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-pd-wanted">
+        <div class="wanted board">
+            <div class="title">Список разыскиваемых</div>
+            <div class="table">
+                <div class="head">
+                    <div class="first" @click="onClickSort('num')">
+                        <div>#</div>
+                        <svg :class="{focus: sortMod.mod == 'num'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('name')">
+                        <div>Имя и фамилия</div>
+                        <svg :class="{focus: sortMod.mod == 'name'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div>Причина</div>
+                    <div @click="onClickSort('danger')">
+                        <div>Опасность</div>
+                        <svg :class="{focus: sortMod.mod == 'danger'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                </div>
+                <div class="tbody">
+                    <div class="record" @click="onClickRecord(record)" v-for="record in sortedList" :key="record.num">
+                        <div class="first"><div class="record-align">{{ record.num }}</div></div>
+                        <div><div class="record-align">{{ record.name }}</div></div>
+                        <div><div class="record-align">{{ record.description | textSplice(32) }}</div></div>
+                        <div><div class="record-align stars">
+                            <svg :class="{ fill: record.danger >= n }" v-for="n in 5" viewBox="0 0 14 14"><path :d="star"/></svg>
+                        </div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-members">
+        <div class="members board">
+            <div class="title">Список сотрудников</div>
+            <div class="table" @click="hideModal($event)">
+                <div class="head">
+                    <div class="first" @click="onClickSort('num')">
+                        <div>#</div>
+                        <svg :class="{focus: sortMod.mod == 'num'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('name')">
+                        <div>Имя и фамилия</div>
+                        <svg :class="{focus: sortMod.mod == 'name'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div @click="onClickSort('rank')">
+                        <div>{{ rankHead }}</div>
+                        <svg :class="{focus: sortMod.mod == 'rank'}" viewBox="0 0 9 16"><path v-for="path in arrows" :d="path" /></svg>
+                    </div>
+                    <div>Действие</div>
+                </div>
+                <div ref="membersBody" class="tbody" @scroll.passive="hideModal()">
+                    <div
+                        :class="['record', {focus: currentRecord == record}]"
+                        v-for="record in sortedList"
+                        :key="record.id"
+                        :style="{ pointerEvents: (currentRecord) ? 'none' : 'auto' }">
+                        <div class="first"><div class="record-align">{{ record.num }}</div></div>
+                        <div><div class="record-align">{{ record.name }}</div></div>
+                        <div><div class="record-align rank">{{ ranks[record.rank - 1] }}</div></div>
+                        <div><div class="record-align btn" @click="showModal($event, record)">
+                            Действие
+                            <svg viewBox="0 0 12 6"><path d="M1 1L5.3753 4.50024C5.74052 4.79242 6.25948 4.79242 6.6247 4.50024L11 1"/></svg>
+                        </div></div>
+                    </div>
+                </div>
+                <div
+                    v-show="modalIsShow"
+                    class="action-modal"
+                    :style="modalStyles">
+                    <div class="btn" @click="onClickRaise()">Повысить</div>
+                    <div class="btn" @click="onClickLower()">Понизить</div>
+                    <div class="btn" @click="onClickDismiss()">Уволить</div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-pd-identification">
+        <div class="dbSearch identification">
+            <div class="logo"><img :src="logo"/></div>
+            <div class="title">УСТАНОВЛЕНИЕ ЛИЧНОСТИ</div>
+            <div class="input">
+                <input
+                    placeholder="Введите ID..."
+                    v-model="inputValue"
+                    @keypress="inputCheck($event); enterHandler($event)"
+                    @focus="setFocus(true)" @blur="setFocus(false)"
+                />
+            </div>
+            <div class="search" @click="search()">Установить личность</diV>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-pd-profile">
+        <div class="profile">
+            <div class="title">Профиль</div>
+            <div class="body">
+                <div class="name">{{ profileData[currentMenuFocus].name }} <span>ID: {{ profileData[currentMenuFocus].id}}</span></div>
+                <div v-if="profileData[currentMenuFocus].danger" class="danger">
+                    <div class="stars"><svg :class="{ fill: profileData[currentMenuFocus].danger >= n }" v-for="n in 5" viewBox="0 0 14 14"><path :d="star"/></svg></div>
+                    <div class="cause">{{ profileData[currentMenuFocus].cause }}</div>
+                </div>
+                <div class="data-head">Информация о гражданине</div>
+                <div class="data">
+                    <div class="wrap">
+                        <div class="record" v-for="record in infoList" :key="record.key">{{ record.title }}<span>{{ profileData[currentMenuFocus][record.key] }}</span></div>
+                    </div>
+                </div>
+                <div class="footer">
+                    <div v-if="profileData[currentMenuFocus].danger" class="btn" @click="showOnMap()"><img src="img/mapCase/radar.svg"/></div>
+                    <div class="btn" @click="showOverWindow('fine')"><img src="img/mapCase/receipt.svg"/></div>
+                    <div class="btn" @click="showOverWindow('wanted')"><img src="img/mapCase/handcuffs.svg"/></div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-wnews-ads">
+        <div class="ads">
+            <div class="logo"><img src="img/mapCase/news-paper.svg"/></div>
+            <div class="title">РЕДАКТИРОВАНИЕ ОБЪЯВЛЕНИЯ</div>
+            <div class="hint">Объявлений для редактирования: <span>{{ adsAmount }}</span></div>
+            <div class="btn" @click="get()">Получить</diV>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-wnews-over-ads">
+        <div class="over ads">
+            <div class="title">{{ header }}</div>
+            <div :class="['text', { focus: editMod }]" :contenteditable="editMod" @input="update" @keypress="inputCheck($event)" @focus="setFocus(true)" @blur="setFocus(false)"></div>
+            <div class="line"></div>
+            <div class="author"><span>Автор:</span> {{ adData.ad.author }}</div>
+            <div :class="['btns', { refuse: refuseMod }]">
+                <div v-if="!refuseMod" class="btn" @click="edit()"><div><img src="img/mapCase/edit_pen.svg"/></div><div class="cont">РЕДАКТИРОВАТЬ ТЕКСТ</div></div>
+                <div v-if="!refuseMod" class="btn send" @click="send()"><div><img src="img/mapCase/stopwatch.svg"/></div><div class="cont">ОТПРАВИТЬ</div></div>
+                <div class="btn" @click="refuse()"><div><img src="img/mapCase/error_gray.svg"/></div><div class="cont">ОТКАЗАТЬ</div></div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-pd-over-fine">
+        <div class="over verification fine" @keypress="enterHandler($event)">
+            <div class="header"> Выдача штрафа {{ profileData[currentMenuFocus].name}}</div>
+            <div class="title">Введите причину</div>
+            <div class="input"><input maxlength="30" placeholder="Введите причину выдачи штрафа..." v-model="causeValue" @focus="setFocus(true)" @blur="setFocus(false)" /></div>
+            <div class="title">Введите сумму штрафа</div>
+            <div class="input"><input placeholder="Введите сумму..." v-model="amountValue" @keypress="inputCheck($event)" @focus="setFocus(true)" @blur="setFocus(false)" /></div>
+            <div class="btns">
+                <div class="btn" @click="give()">Выдать</div>
+                <div class="btn" @click="cancel()">Отмена</div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="map-case-pd-over-wanted">
+        <div class="over verification fine" @keypress="enterHandler($event)">
+            <div class="header"> Выдача розыска {{ profileData[currentMenuFocus].name}}</div>
+            <div class="title">Введите причину</div>
+            <div class="input"><input maxlength="30" placeholder="Введите причину выдачи розыска..." v-model="causeValue" @focus="setFocus(true)" @blur="setFocus(false)" /></div>
+            <div class="title">Выберите степень опасности</div>
+            <div class="stars" @click.self="over(0); setDanger()"><svg
+                                :class="{ fill: overDanger >= n }"
+                                v-for="n in 5"
+                                viewBox="0 0 14 14"
+                                @click="setDanger()"
+                                @mouseover="over(n)"
+                                @mouseout="over(-1)">
+                                <path :d="star"/></svg></div>
+            <div class="btns">
+                <div class="btn" @click="give()">Выдать</div>
+                <div class="btn" @click="cancel()">Отмена</div>
+            </div>
+        </div>
+    </script>
+
+    <div id="map-case" class="w-bg" v-if="show && enable" v-cloak>
+        <div :class="['b-bg', type]">
+            <div :class="['screen', { blur: blurMod }]">
+                <div class="menu">
+                    <div class="header">
+                        <div class="menu-top">
+                            <div v-html="certainData.menuHeader"></div>
+                            <img v-if="certainData.menuHeaderName" :src="certainData.menuHeaderName" />
+                        </div>
+                        <div class="menu-bottom">
+                            <div>
+                                <img :src="certainData.menuHeaderImg" />
+                            </div>
+                            <div>
+                                {{ certainData.menuTitle }}<br />
+                                <span>{{ userName }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-body">
+                        <div :class="['menu-item', {focus: menuFocus == name}]" v-for="(item, name) in certainData.menuBody" :key="name" @click="onClickMenuItem(name)">
+                            <div>
+                                <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path v-for="path in item.img" :d="path" /></svg>
+                            </div>
+                            <div>{{ item.title }}</div>
+                        </div>
+                        <div v-if="emergencyCall" class="emergency" @click="emergencyCall(); showLoad();">
+                            Экстренный вызов
+                        </div>
+                    </div>
+                </div>
+                <div class="body">
+                    <div class="top-bar">
+                        <div>{{ time }}</div>
+                        <div><img src="img/mapCase/wifi.svg" /></div>
+                    </div>
+                    <div class="window">
+                        <keep-alive>
+                            <component :is="currentWindow" v-bind="dataForWindow"></component>
+                        </keep-alive>
+                        <div v-if="certainData.menuBody[menuFocus].windows.length > 1" class="back btn" @click="onClickBack">
+                            <img src="img/mapCase/return.svg" />
+                        </div>
+                    </div>
+                </div>
+                <div v-if="blurMod" class="blurShadow" @click="hidePopupMessage()"></div>
+            </div>
+            <div v-if="loadMod" class="load">
+                <div>Загрузка <span v-if="loadMod.waitingTime >= 0">({{ loadMod.waitingTime }}с)</span></div>
+                <div class="dots">
+                    <div :class="{focus: loadMod.loadCount % 3 == 0}">.</div>
+                    <div :class="{focus: loadMod.loadCount % 3 == 1}">.</div>
+                    <div :class="{focus: loadMod.loadCount % 3 == 2}">.</div>
+                </div>
+                <div class="message" v-html="loadMod.message"></div>
+            </div>
+            <div v-if="popupMessage" class="popup-message">
+                <div class="body">
+                    <div><img :src="'img/mapCase/' + popupMessage.img + '.svg'" /></div>
+                    <div v-html="popupMessage.message"></div>
+                </div>
+                <div class="hint">
+                    <div><img src="img/mapCase/tap.svg" /></div>
+                    <div>Кликните в любое место для закрытия окна</div>
+                </div>
+            </div>
+            <div v-if="verification" class="verification">
+                <div class="message" v-html="verification.message"></div>
+                <div class="btns">
+                    <div class="btn" @click="verification.accept()">Да</div>
+                    <div class="btn" @click="hideVerification()">Нет</div>
+                </div>
+            </div>
+            <component :is="currentOverWindow" v-bind="dataForWindow"></component>
+        </div>
+    </div>
+
+    <!-- ------------------------ ПЛАНШЕТ ПД ------------------------ -->
+
+    <div v-cloak id="fishing" v-if="show">
+        <!-- <button @click="fishFetch(40, 20, 3)">start</button> -->
+        <div class="fishing-line" v-if="isFetch">
+            <div class="fishing-zone" v-bind:style="{ width: zone + '%', marginLeft: ((100 - zone) / 2) + '%' }"></div>
+            <div id="fishing-cursor" v-bind:style="{ marginLeft: position + '%' }">
+                <svg width="100%" height="135%" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <path d="M36.3633 32.7272C40.0457 34.9833 42.5206 39.0192 42.5922 43.6372C42.7033 50.8062 36.9178 56.772 29.7491 56.8704C22.4709 56.9702 16.5391 51.0991 16.5391 43.8432C16.5391 41.2314 17.3077 38.7993 18.6309 36.7604C20.0183 34.6228 20.7305 32.1172 20.7305 29.5687H26.9609V31.1244C26.9609 34.2679 25.916 37.3053 24.0672 39.8476C24.0598 39.8578 24.0524 39.8679 24.0451 39.8781C23.211 41.0385 22.7323 42.4733 22.7718 44.0209C22.8666 47.7338 25.991 50.7131 29.7042 50.6393C33.3948 50.5659 36.3633 48.2616 36.3633 42.7104H31.0391C31.0391 42.7103 36.3633 40.4446 36.3633 32.7272Z" fill="#188FED"/>
+                        <path d="M28.0938 22.3459V29.5403H19.5977V22.3187H19.6622C20.9095 23.0391 22.3583 23.4515 23.9023 23.4515C25.4271 23.4515 26.8567 23.0493 28.0938 22.3459Z" fill="#0B66AD"/>
+                        <path d="M23.9023 6.45746C19.2101 6.45746 15.4062 10.2616 15.4062 14.9542C15.4062 19.6469 19.2101 23.451 23.9023 23.451C28.5946 23.451 32.3984 19.6469 32.3984 14.9542C32.3984 10.2616 28.5946 6.45746 23.9023 6.45746ZM23.9023 18.9194C21.7126 18.9194 19.9375 17.1442 19.9375 14.9542C19.9375 12.7643 21.7126 10.989 23.9023 10.989C26.0921 10.989 27.8672 12.7643 27.8672 14.9542C27.8672 17.1442 26.0921 18.9194 23.9023 18.9194Z" fill="#188FED"/>
+                        <path d="M26.7344 11.5556V1.13293H21.0703V11.5556C21.0703 13.1198 22.3383 14.3879 23.9023 14.3879C25.4664 14.3879 26.7344 13.1198 26.7344 11.5556Z" fill="#0B66AD"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div v-if="isStarted && !isFetch">
+            <div class="fishing-wait">
+                <div>
+                    <img style="width: 13%; margin-bottom: 3%" src='img/fishing/fish.png'/>
+                </div>
+                Ждите, пока рыба клюнет...
+            </div>
+        </div>
+        <div class="fishing-help">
+            <table>
+                <tr v-if="!isStarted">
+                    <th>
+                        <span class="fishing-help-button">ЛКМ</span>
+                    </th>
+                    <th>
+                        <span>Забросить удочку</span>
+                    </th>
+                </tr>
+                <tr v-if="isFetch">
+                    <th>
+                        <span class="fishing-help-button">Space</span>
+                    </th>
+                    <th>
+                        <span>Вытянуть</span>
+                    </th>
+                </tr>
+                <tr v-if="!isFetch">
+                    <th>
+                        <span class="fishing-help-button">Esc</span>
+                    </th>
+                    <th>
+                        <span>Выйти</span>
+                    </th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ------------------------ МЕНЮ ИГРОКА ------------------------ -->
+    <link rel="stylesheet" type="text/css" href="css/playerMenu.css" />
+    <div id="player-menu" v-if="show" v-cloak>
+        <img class="logo" src="img/logo.png" />
+        <div :class="['content', { blur: blurMod }]">
+            <div class="head">
+                <div class="top-bar">
+                    <div class="info">
+                        <div ref="name">{{ name }} |
+                            <span ref="def" :class="'social-status'+socialStatus">{{ socialData[socialStatus].head }}
+                                <img :src="socialData[socialStatus].img" />
+                            </span>
+                        </div>
+                        <div class="coins">
+                            <div class="coin-logo">cc</div> {{ coins }}
+                        </div>
+                    </div>
+                    <div class="date">
+                        {{ time }} <br /> {{ date }}
+                    </div>
+                    <div v-if="false" class="exit"><img @click="onClickExit()" src="img/playerMenu/exit.svg" /></div>
+                    <div class="btn" @click="enterCode()">
+                        <div>Ввести промокод</div>
+                        <div><img src="img/playerMenu/box.svg" /></div>
+                    </div>
+                </div>
+                <div class="line"></div>
+                <div class="menu-bar">
+                    <div :class="['item', {focus: menuBarFocus == menuItem }]" v-for="menuItem in menuBar" @click="onClickMenuBarItem(menuItem)">
+                        {{ menuItem.head }}
+                    </div>
+                </div>
+            </div>
+            <div :class="['body', {'long-name': longName}]">
+                <keep-alive>
+                    <component :is="menuBarFocus.window" v-bind="menuBarFocus.windowData"></component>
+                </keep-alive>
+            </div>
+        </div>
+        <div v-if="blurMod" class="blur-window">
+            <div class="confirmation">
+                <div class="head">{{ confirmation.head }}</div>
+                <div class="description" v-html="confirmation.description"></div>
+                <div v-if="codeMod"><input placeholder="Введите промокод..." @keypress.enter="confirmation.acceptHandler(); confirmation = null" v-model="code" @focus="inputFocus = true" @blur="inputFocus = false" /></div>
+                <div class="actions">
+                    <div class="btn left" @click="confirmation.acceptHandler(); confirmation = null">{{ confirmation.leftWord }}</div>
+                    <div class="btn" @click="confirmation = null; codeMod = false">{{ confirmation.rightWord }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/x-template" id="player-menu-character">
+        <div class="character">
+            <div class="block statistics">
+                <div class="header">Статистика</div>
+                <div class="body">
+                    <div class="record" v-for="record in statistics">
+                        <div>{{ record.head }}</div>
+                        <div :style="record"><span>{{ record.value | playerMenuMoneySplit(record.moneyFilter) | prettyMinutes(record.minutesFilter) }}</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="header">Дом</div>
+                <div :class="['body', { no: !houseInfo.length}]">
+                    <div class="record" v-for="record in houseInfo">
+                        <div>{{ record.head }}</div>
+                        <div :style="record"><span>{{ record.value | playerMenuMoneySplit(record.moneyFilter) }}</span></div>
+                    </div>
+                    <div class="info" v-if="!houseInfo.length">
+                        He приобретён
+                    </div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="header">Бизнес</div>
+                <div :class="['body', { no: !businessInfo.length}]">
+                    <div class="record" v-for="record in businessInfo">
+                        <div>{{ record.head }}</div>
+                        <div :style="record"><span>{{ record.value | playerMenuMoneySplit(record.moneyFilter) }}</span></div>
+                    </div>
+                    <div class="info" v-if="!businessInfo.length">
+                        He приобретён
+                    </div>
+                </div>
+            </div>
+            <div class="skills">
+                <div class="header">Навыки</div>
+                <div class="body">
+                    <div class="arrow top" @click="onClickArrow(false)"><img :class="{disable: count == 0}" src="img/playerMenu/skill-scroll.svg"/></div>
+                    <transition-group class="skills-board" name="skills" tag="div">
+                        <div class="skills-line"
+                            v-if="index >= count && index < count + 3"
+                            v-for="(skills, index) in skillsList"
+                            :key="index">
+                                <div class="skill" v-for="skill in skills" v-if="skill">
+                                    <div>{{ skill.head }}</div>
+                                    <div :class="['val', { paint: skill.value == 100 }]">{{ +skill.value.toFixed(2) }}%</div>
+                                    <div class="progress"><div :style="{width: (skill.value > 1) ? skill.value+'%': '1vh'}"></div></div>
+                                </div>
+                        </div>
+                    </transition-group>
+                    <div class="arrow" @click="onClickArrow(true)"><img :class="{disable: count > skillsList.length - 4}" src="img/playerMenu/skill-scroll.svg"/></div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-settings">
+        <div class="character">
+            test message settings
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-report">
+        <div class="report">
+            <div class="head">Задайте вопрос или оставьте жалобу на игрока, указав его ID и причину жалобы</div>
+            <input placeholder="Введите вопрос или жалобу..." v-model="message" :maxlength="maxlength" @keypress.enter="send()" @focus="setFocus(true)" @blur="setFocus(false)" />
+            <div>Осталось символов: {{ chars }}</div>
+            <div class="send" @click="send()">Отправить</div>
+            <div v-if="showHint" class="hint">Ваше сообщение было отправлено администрации сервера!<br />Приятной игры!</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-help">
+        <div class="report help">
+            <div class="head">Введите интересующий вас вопрос:</div>
+            <input placeholder="Введите вопрос..." v-model="message" :maxlength="maxlength" @focus="setFocus(true)" @blur="setFocus(false)"/>
+            <div class="head sec">Ответы на вопросы</div>
+            <div class="messages body">
+                <div :class="['message', {focus: currentAnswer == index}]"
+                    v-for="(message, index) in searchResult"
+                    :key="index"
+                    @click="showAnswer(index)">
+                    <div class="img"><img src="img/playerMenu/communication.svg" /></div>
+                    <div class="qw">{{ message.question }}</div>
+                    <div v-if="message.answer" class="arrow"><img src="img/playerMenu/help-arrow.svg" /></div>
+                    <div class="answer" v-if="currentAnswer == index">{{ message.answer }}</div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-reference">
+        <div class="reference">
+            <div class="left">
+                <div class="line"></div>
+                <div class="record">
+                    <div class="circle"><img src="img/playerMenu/megafon.svg" /></div>
+                    <div>Расскажите друзьям о вашем<br />реферальном промокоде</div>
+                </div>
+                <div class="record">
+                    <div class="circle"><img src="img/playerMenu/file.svg" /></div>
+                    <div>Ваш реферальный промокод должны ввести<br />в специальное окно для ввода промокодов</div>
+                </div>
+                <div class="record">
+                    <div class="circle"><img src="img/playerMenu/clock.svg" /></div>
+                    <div class="text">А также отыграть на нашем сервере 24 часа</div>
+                </div>
+                <div class="record">
+                    <div class="circle"><img src="img/playerMenu/smile.svg" /></div>
+                    <div>По достижении онлайна 24 часов вам и вашему другу<br />будет начислено по $10 000</div>
+                </div>
+            </div>
+            <div class="right">
+                <div class="head">Ваш реферальный промокод:</div>
+                <div class="num cp">{{ code }}</div>
+                <div class="head">Количество приглашённых:</div>
+                <div class="num">{{ amountInvitees }}</div>
+                <div class="head">Количество выполнивших условие:</div>
+                <div class="num gr">{{ amountCompleted }}</div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-window-sidebar">
+        <div class="sidebar">
+            <div class="left">
+                <div class="head"><img :src="headImg" /><span>{{ head }}</span></div>
+                <div class="menu">
+                    <div :class="['item', { focus: menuFocus == item }]"
+                        v-for="(item, index) in menu" :key="index + head"
+                        @click="onClickMenuItem(item)">
+                        <div>{{item.head}}</div>
+                        <div><svg viewBox="0 0 20 20" ><path v-for="path in item.img" :d="path"/></svg></div>
+                    </div>
+                    <div class="item bottom" v-if="bottom" @click="bottom.handler">
+                        <div>{{bottom.head}}</div>
+                        <div><svg viewBox="0 0 36 36" ><path v-for="path in bottom.img" :d="path"/></svg></div>
+                    </div>
+                </div>
+            </div>
+            <div class="line"></div>
+            <keep-alive>
+                <component v-if="menuFocus" :is="menuFocus.window" v-bind="dataForWindow"></component>
+            </keep-alive>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-donate-convert">
+        <div class="sidebar-win convert">
+            <div class="head">Конвертация валюты</div>
+            <div class="hint">Конвертация валюты - это способ получить виртуальную валюту,<br />обменивая <div class="coin-logo">cc</div> на неё</div>
+            <div class="hint sec">Введите число CC, которые вы бы хотели обменять</div>
+            <input placeholder="Введите число..." v-model="price" @keypress="inputCheck($event)" @keypress.enter="convert()" @focus="setFocus(true)" @blur="setFocus(false)" />
+            <div class="equally">=</div>
+            <div class="coins">{{ virtualCoins | playerMenuMoneySplit(true) }}</div>
+            <div :class="['btn', {disable: !isEnable }]" @click="convert()">Конвертировать</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-donate-changename">
+        <div class="sidebar-win changename">
+            <div class="head">Смена никнейма</div>
+            <div class="hint">Смените никнейм для вашей новой личности</div>
+            <div class="name"><input placeholder="Введите новое имя" v-model="firstname" @keypress="inputCheck($event)" @keypress.enter="changename()" @focus="setFocus(true)" @blur="setFocus(false)" /></div>
+            <div><input placeholder="Введите новую фамилию" v-model="lastname" @keypress="inputCheck($event)" @keypress.enter="changename()" @focus="setFocus(true)" @blur="setFocus(false)" /></div>
+            <div class="price">Стоимость услуги: <span>{{ price }} CC</span></div>
+            <div :class="['btn', {disable: !firstname || !lastname || price > coins }]" @click="changename()">Сменить никнейм</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-donate-warn">
+        <div class="sidebar-win warn">
+            <div class="head">Снятие варна</div>
+            <div class="hint">Снимите варн и разблокируйте функции</div>
+            <div class="info" v-if="amountWarns">Варнов: {{ amountWarns }}</div>
+            <div class="info n-warns" v-else>На вашем аккаунте нет варнов</div>
+            <div class="price">Стоимость услуги: <span>{{ price }} CC</span></div>
+            <div :class="['btn', {disable: !amountWarns || price > coins }]" @click="localtakeoffWarn()">Снять варн</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-donate-addslot">
+        <div class="sidebar-win addslot">
+            <div class="head">Добавление слота</div>
+            <div class="hint">Добавьте слот для создания нового персонажа</div>
+            <div class="info">Слотов: {{ amountSlots }}</div>
+            <div class="price">Стоимость услуги: <span>{{ price }} CC</span></div>
+            <div :class="['btn', {disable: amountSlots == maxSlots || price > coins }]" @click="localaddSlot()">Добавить слот</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-settings-main">
+        <div class="sidebar-win settings-main">
+            <div class="head">Общие настройки</div>
+            <div class="body">
+                <div class="record" v-for="(record, key) in localSettings">
+                    <div class="title">{{ record.head }}</div>
+                    <div v-if="record.type == 'scroll'" class="slidebar val">
+                        <img class="left" src="img/playerMenu/help-arrow.svg" @click="left(key)"/>
+                        <div class="value">{{ record.pull[record.value] }}</div>
+                        <img class="right" src="img/playerMenu/help-arrow.svg" @click="right(key)"/>
+                    </div>
+                    <div v-if="record.type == 'range'" class="val">
+                        <input type="range" min="0" v-model="record.value"/>
+                    </div>
+                </div>
+            </div>
+            <div :class="['btn', {disable: noChanges }]" @click="save()">Сохранить</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="player-menu-settings-protection">
+        <div class="sidebar-win protection">
+            <div class="head">Общие настройки</div>
+            <div class="record email">
+                <div class="title">Электронная почта</div>
+                <div class="body">
+                    <div v-if="!changeMailMod && !codeMod">
+                        <div class="email">{{ email }}</div>
+                        <div :class="['info', { conf: isConfirmed }]">{{ (isConfirmed) ? 'Подтверждена' : 'Не подтверждена' }}</div>
+                    </div>
+                    <div v-if="changeMailMod">
+                        <input placeholder="Введите новый E-Mail" @keypress.enter="saveMail()" v-model="newEmail" @focus="setFocus(true)" @blur="setFocus(false)" />
+                    </div>
+                    <div v-if="codeMod">
+                        <input placeholder="Введите код" v-model="code" @keypress="inputCheck($event)" @keypress.enter="confCode()" @focus="setFocus(true)" @blur="setFocus(false)" >
+                    </div>
+                </div>
+                <div class="actions">
+                    <div v-if="!changeMailMod && !codeMod" @click="changeMailMod = true">Изменить</div>
+                    <div v-if="!isConfirmed && !codeMod && !changeMailMod" @click="localsendCode()">Отправить код</div>
+                    <div v-if="codeMod" @click="confCode()" :class="{ disable: !code }">Подтвердить</div>
+                    <div v-if="changeMailMod" @click="saveMail()" :class="{ disable: !emailIsValid }">Сохранить</div>
+                    <div v-if="changeMailMod || codeMod" @click="cancel()" :class="{ disable: intervalId }">Отменить {{ waiting }}</div>
+                </div>
+            </div>
+            <div class="record pass">
+                <div class="title">Пароль</div>
+                <div class="body">
+                    <div v-if="!changePassMod">
+                        {{ passMessage }}
+                    </div>
+                    <div v-if="changePassMod">
+                        <input type="password" placeholder="Введите старый пароль" v-model="oldPass" @keypress.enter="savePass()" @focus="setFocus(true)" @blur="setFocus(false)" />
+                        <input type="password" placeholder="Введите новый пароль" v-model="newPass" @keypress.enter="savePass()" @focus="setFocus(true)" @blur="setFocus(false)" />
+                        <input type="password" placeholder="Повторно новый пароль" v-model="newPass2" @keypress.enter="savePass()" @focus="setFocus(true)" @blur="setFocus(false)" />
+                    </div>
+                </div>
+                <div class="actions">
+                    <div v-if="!changePassMod" @click="changePassMod = true">Изменить</div>
+                    <div v-if="changePassMod" @click="savePass()" :class="{ disable: !passIsValid }">Сохранить</div>
+                    <div v-if="changePassMod" @click="passCancel()">Отменить</div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script src="js/playerMenuSvgPaths.js"></script>
+    <script src="js/playerMenu.js"></script>
+    <!-- ------------------------ МЕНЮ ИГРОКА ------------------------ -->
+
+
+
+    <div v-cloak id="captureScore" v-if="isShow">
+        <div class="header">
+            <img v-if="leftImgSrc" :src="leftImgSrc" />
+            <span :style="{color: colors[leftBandId]}">{{ names[leftBandId] }}</span>
+            <span class="vs">vs.</span>
+            <span :style="{color: colors[rightBandId]}">{{ names[rightBandId] }}</span>
+            <img v-if="rightImgSrc" :src="rightImgSrc" />
+
+            <div class="progress" :style="{background: colors[rightBandId]}">
+                <div class="fill" :style="{width: progressWidth+'%', background: colors[leftBandId]}"></div>
+            </div>
+            <div class="score">
+                <div>Убийств: {{ leftScore }}</div>
+                <div>{{ prettyTime }}</div>
+                <div>Убийств: {{ rightScore }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="killList" v-if="isShow" :style="{opacity: 1}">
+        <div class="log" v-for="kill in list">
+            <div v-if="kill.killer" :style="{color: playerColor(kill.killer)}">{{ kill.killer.name }}</div>
+            <img :src="killImgSrc(kill.reason)" />
+            <div :style="{color: playerColor(kill.target)}">{{ kill.target.name }} <span v-if="kill.reason && isWeapon(kill.reason)"> из {{ kill.reason }}</span></div>
+        </div>
+    </div>
+
+    <div id="watermark" v-if="isShow">
+        <div v-for="num in id" :style="{width: num * 5 + 'px'}"></div>
+    </div>
+
+    <div id="timer" v-if="timer" v-cloak>
+        <img :src="'img/timer/'+timer.icon" />
+        <div class="text">{{ timer.text }}</div>
+        <div class="progress">
+            <div class="fill" :style="{width: width + '%'}"></div>
+        </div>
+        <div class="time">{{ time / 1000 }} с.</div>
+    </div>
+
+    <div v-cloak id="changelist" v-if="show">
+        <div class="close" onclick="changelist.show = false">x</div>
+        <div class="header">
+            <i class="arrow fas fa-long-arrow-alt-left" onclick="changelist.i++" v-if="i < list.length - 1"></i>
+            <div class="title" :class="{first: i == list.length - 1}">
+                <div class="name">Обновления #{{ i + 1 }}</div>
+                <div class="date" :class="{right: !i, center: i && i < list.length - 1}">{{ list[i].date }}</div>
+            </div>
+            <i class="arrow fas fa-long-arrow-alt-right" onclick="changelist.i--" v-if="i > 0"></i>
+        </div>
+        <div class="content">
+            <div v-for="text in list[i].features" :title="text"><span class="features"><i class="fas fa-star"></i></span>
+                <div>{{ prettyText(text) }}</div>
+            </div>
+            <br v-if="list[i].fixed.length" />
+            <div v-for="text in list[i].fixed" :title="text"><span class="fixed"><i class="fas fa-wrench"></i></span>{{ prettyText(text) }}</div>
+            <br v-if="list[i].improvements.length" />
+            <div v-for="text in list[i].improvements" :title="text"><span class="improvements"><i class="fas fa-cog"></i></span>{{ prettyText(text) }}</div>
+            <br v-if="list[i].removed.length" />
+            <div v-for="text in list[i].removed" :title="text"><span class="removed"><i class="fas fa-trash"></i></span>{{ prettyText(text) }}</div>
+        </div>
+        <div class="footer">
+            <div class="build" title="Сборка"><i class="fas fa-code-branch"></i> {{ list[i].build }}</div>
+            <div v-show="enable" class="likes" :class="{liked: list[i].liked}" onclick="changelist.like()">{{ list[i].likes }} <i class="fas fa-heart"></i></div>
+        </div>
+    </div>
+
+    <div v-cloak id="modal" v-if="show && modal">
+        <div class="close" @click="show = false">X</div>
+        <div class="header">{{ modal.header }}</div>
+        <div class="content" v-html="modal.content"></div>
+    </div>
+
+    <div v-cloak id="selectItems" v-show="show && inventory.enable && !inventory.handsBlock">
+        <svg>
+            <linearGradient id="select-items-gradient" x1="0%" y1="23%" x2="100%" y2="50%">
+                <stop offset="85%" stop-color="#rgba(12, 12, 12, 0.6)" />
+                <stop offset="100%" stop-color="rgba(255, 223, 41, 0.6)" />
+            </linearGradient>
+            <circle class="center"/>
+            <g class="container" :class="{ focus: items[n-1] && items[n-1] == inventory.equipment[13], select: n-1 == select }" v-for="n in 10" :style="{transform: 'rotate('+ (n + 1) * 36 +'deg)'}">
+                <circle class="node" />
+                <circle class="stroke" />
+            </g>
+            <g class="container" v-for="n in 10" :style="{transform: 'rotate('+ (n + 1) * 36 +'deg)'}">
+                <g v-if="items[n-1] && inventory.getItem(items[n-1].sqlId) && n != 1"><image :xlink:href="inventory.urlItemImg(items[n-1].itemId)" :style="{transform: 'rotate('+ (n + 1) * -36 +'deg)'}" /></g>
+                <g v-else-if="n == 1"><image class="hand" xlink:href="img/selectItems/hand.svg" :style="{transform: 'rotate('+ (n + 1) * -36 +'deg)'}" /></g>
+            </g>
+        </svg>
+        <div class="description" v-if="descItemName">
+            <div class="head">{{ descItemName }}</div>
+            <div class="amount">{{ descItemCount }}</div>
+        </div>
+    </div>
+
+    <div id="bugTracker" v-if="show" :style="{opacity: 1}">
+        <div class="left">
+            <div class="title">Очки помощи: {{ score }}</div>
+            <div class="bug-list" v-if="bugList.length">
+                <div v-for="(bug, i) in bugList" v-key="i" :class="{active: i == bugI}" @click="onClickBug(i)">{{ bug.name }}</div>
+            </div>
+            <div v-if="!bugList.length">Список пуст</div>
+        </div>
+        <div class="right">
+            <div class="bug" v-if="currentBug">
+                <div class="header">{{ currentBug.name }}</div>
+                <div class="info">
+                    <h3>Шаги воспроизведения:</h3>
+                    <div>
+                        <div v-for="step in currentBug.steps">{{ step }}</div>
+                    </div>
+                    <h3>Результат:</h3>
+                    <i>{{ currentBug.result }}</i>
+                    <h3>Ожидаемый результат:</h3>
+                    <i>{{ currentBug.expectedResult }}</i>
+                </div>
+                <div class="about">
+                    <div>Создатель: {{ currentBug.author }}</div>
+                    <div>Исполнитель: {{ currentBug.executor }}</div>
+                    <div>Состояние: {{ currentBug.state }}</div>
+                    <div>Сборка: #{{ currentBug.build }}</div>
+                    <div>Дата: {{ currentBug.date }}</div>
+                </div>
+            </div>
+            <div class="create-bug" v-else>
+                <div class="header">Новая ошибка</div>
+                <div class="info">
+                    <div>Название:</div>
+                    <input v-model="form.name" type="text" placeholder="Восстановление HP бронежилета" />
+                    <div>Шаги воспроизведения:</div>
+                    <div class="steps">
+                        <div v-for="(step, i) in form.steps">
+                            <input v-model="form.steps[i]" v-bind:key="i" type="text" :placeholder="getPlaceholder(i)" @keydown="onKeyDownStep($event, i)" />
+                        </div>
+                        <div class="button" @click="onClickAddStep">Добавить шаг</div>
+                    </div>
+                    <div>Результат:</div>
+                    <input v-model="form.result" type="text" placeholder="HP бронежилета откатывается на первоначальное значение" />
+                    <div>Ожидаемый результат:</div>
+                    <input v-model="form.expectedResult" type="text" placeholder="HP бронежилета не откатывается" @keydown.enter="onClickCreateBug" />
+                </div>
+                <div class="button" @click="onClickCreateBug">Создать</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ------------------------ REACT ------------------------------ -->
+    <script async src="build/js/build.js" type="text/javascript"></script>
+    <div id="root"></div>
+    <!-- ------------------------------------------------------------- -->
+    <script src="js/fontawesome.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/mapCaseSvgPaths.js"></script>
+    <script src="js/mapCasePd.js"></script>
+    <script src="js/mapCaseFIB.js"></script>
+    <script src="js/mapCaseEms.js"></script>
+    <script src="js/mapCaseWNews.js"></script>
+    <script src="js/mapCaseNg.js"></script>
+    <script src="js/mapCaseGover.js"></script>
+    <script src="js/mapCase.js"></script>
+    <script src="js/prompt.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/offerDialog.js"></script>
+    <script src="js/infoTable.js"></script>
+    <script src="js/characterInfo.js"></script>
+    <script src="js/selectMenu.js"></script>
+    <script src="js/changelist.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/characterPass.js"></script>
+    <script src="js/carPass.js"></script>
+    <script src="js/driverLicense.js"></script>
+    <script src="js/speedometer.js"></script>
+    <script src="js/interactionMenu.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/craft.js"></script>
+    <script src="js/carSpecifications.js"></script>
+    <script src="js/check.js"></script>
+    <script src="js/inputWindow.js"></script>
+    <script src="js/selectionWindow.js"></script>
+    <script src="js/acceptWindow.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/playersList.js"></script>
+    <script src="js/gunLicense.js"></script>
+    <script src="js/fishing.js"></script>
+    <script src="js/captureScore.js"></script>
+    <script src="js/killList.js"></script>
+    <script src="js/watermark.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/selectItems.js"></script>
+    <script src="js/medicalCard.js"></script>
+    <script src="js/governmentBadge.js"></script>
+    <script src="js/bugTracker.js"></script>
+
+</body>
+
+</html>
