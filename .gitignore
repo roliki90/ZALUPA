@@ -1,0 +1,17 @@
+.idea
+dotnet
+maps
+node_modules
+plugins
+linux_x64.tar.gz
+BugTrap-x64.dll
+game_resources/
+money_log.txt
+ragemp-server.exe
+ragemp-server
+.env
+client_packages/.listcache
+/bin
+.cache
+packages
+mysql.json
