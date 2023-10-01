@@ -12,6 +12,7 @@ ragemp-server
 .env
 client_packages/.listcache
 /bin
+client_packages
 .cache
 packages
 mysql.json
